@@ -1,0 +1,161 @@
+@font-face {
+    font-family: 'TileCalcCN';
+    src: url('../fonts/chinese-font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* =========================================================================
+   TileCalc 设计令牌（index.html 工作站与 tukuan.html 图框编辑器共用）
+   原则：中性灰阶建立层次，克制的钴蓝只用于选中 / 焦点 / 主操作；
+   所有页面与组件只引用这里的变量，不再各自定义色值与尺寸。
+   app.js → CANVAS_THEME 读取第 7 组画布变量。
+   ========================================================================= */
+:root {
+    /* ---------- 1. 中性表面（由深到浅：画布 < 弱底 < 面板） ---------- */
+    --bg-app: #F3F4F7;                 /* 画布 / 工作区底色 */
+    --bg-panel: #FFFFFF;               /* 导航栏、侧栏、卡片、输入控件、弹窗 */
+    --bg-subtle: #F7F8FA;              /* 组内弱底、分段轨道、表头表尾 */
+    --bg-hover: #F0F2F5;               /* 悬停 */
+    --bg-active: #E6E9EE;              /* 按下 */
+    --bg-sidebar: var(--bg-panel);
+    --bg-card: var(--bg-panel);
+    --bg-overlay: rgba(17, 24, 39, 0.40);   /* 弹窗遮罩 */
+    --bg-inverse: rgba(28, 34, 45, 0.94);   /* 吐司、拖拽提示等深色浮层 */
+
+    /* ---------- 2. 边框 ---------- */
+    --border-light: #EEF0F3;           /* 组内细线 */
+    --border-default: #E2E5EA;         /* 面板分割线、卡片边 */
+    --border-strong: #D0D5DC;          /* 表单控件 */
+    --border-hover: #B3BAC5;           /* 控件悬停 */
+    --border-focus: var(--primary);
+
+    /* ---------- 3. 主色（仅用于选中、焦点与主操作） ---------- */
+    --primary: #3463D8;
+    --primary-hover: #2B55C2;
+    --primary-active: #2449A8;
+    --primary-soft: #EEF3FD;           /* 选中底 */
+    --primary-subtle: #F6F8FE;         /* 悬停底 */
+    --primary-border: #C8D6F6;
+    --primary-text: #2A54BF;
+    --focus-ring: 0 0 0 3px rgba(52, 99, 216, 0.15);
+
+    /* ---------- 4. 文本 ---------- */
+    --text-main: #1A202C;              /* 标题、数值 */
+    --text-secondary: #424B5A;         /* 正文、按钮文字 */
+    --text-muted: #687180;             /* 标签、次级说明 */
+    --text-light: #9AA1AD;             /* 单位、占位、弱提示 */
+    --text-disabled: #C6CBD3;
+    --text-inverse: #F8FAFC;
+
+    /* ---------- 5. 语义色（低饱和） ---------- */
+    --color-success: #2A8A67;
+    --color-success-hover: #227355;
+    --color-success-soft: #ECF7F2;
+    --color-success-border: #B9DFCF;
+    --color-success-text: #1F664C;
+
+    --color-amber: #C27816;
+    --color-amber-hover: #A16210;
+    --color-amber-soft: #FEF8EC;
+    --color-amber-border: #F2D8A7;
+    --color-amber-text: #8B540D;
+    --wood-accent: #7A5C2E;
+    --wood-soft: #F7F3ED;
+    --wood-border: #E6DAC8;
+
+    --color-danger: #CF4343;
+    --color-danger-hover: #B53737;
+    --color-danger-soft: #FDF3F3;
+    --color-danger-border: #F0C8C8;
+    --color-danger-text: #A53131;
+
+    /* ---------- 6. 砖块分类统计色 ---------- */
+    --stat-full-color: #4A5363;
+    --stat-full-bg: rgba(145, 155, 170, 0.10);
+    --stat-full-border: #959EAC;
+    --stat-large-color: #8A6A3A;
+    --stat-large-bg: rgba(196, 160, 103, 0.12);
+    --stat-large-border: #C9AE84;
+    --stat-small-color: #A05555;
+    --stat-small-bg: rgba(190, 112, 112, 0.10);
+    --stat-small-border: #D3A3A3;
+
+    /* ---------- 7. 二维 CAD 画布（app.js → CANVAS_THEME） ---------- */
+    --cv-bg: var(--bg-app);
+    --cv-grid-minor: #E9EBF0;
+    --cv-grid-major: #D7DBE2;
+    --cv-tile-fill: #F1F3F6;
+    --cv-tile-stroke: #959EAC;
+    --cv-tile-text: #8E97A5;
+    --cv-tile-hover-fill: rgba(52, 99, 216, 0.07);
+    --cv-tile-selected-fill: #DDE7FB;
+    --cv-tile-selected-stroke: var(--primary);
+    --cv-cut-large-fill: #F5EFE4;
+    --cv-cut-large-stroke: #C2A77E;
+    --cv-cut-large-text: #9A7B4C;
+    --cv-cut-small-fill: #F7ECEC;
+    --cv-cut-small-stroke: #C99A9A;
+    --cv-cut-small-text: #A86565;
+    --cv-wall: #333B48;
+    --cv-wall-hover: #687180;
+    --cv-dim-line: #A6AEBA;
+    --cv-dim-text: #4A5363;
+    --cv-dim-pill: rgba(255, 255, 255, 0.94);
+    --cv-dim-pill-border: #D7DBE2;
+    --cv-guide: rgba(52, 99, 216, 0.45);
+    --cv-label: #1A202C;
+    --cv-label-2: #4A5363;
+    --cv-label-3: #868E9B;
+
+    /* ---------- 8. 字体、字号、字重、行高 ---------- */
+    --font-sans: Inter, "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, "Hiragino Sans GB", "Noto Sans SC", "TileCalcCN", Arial, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, "Segoe UI Mono", ui-monospace, "SFMono-Regular", Menlo, "Liberation Mono", "Microsoft YaHei UI", monospace;
+    --fs-2xs: 10px;                    /* 角标、单位 */
+    --fs-xs: 11px;                     /* 辅助说明、紧凑控件 */
+    --fs-sm: 12px;                     /* 正文、控件 */
+    --fs-md: 13px;                     /* 分区标题 */
+    --fs-lg: 15px;                     /* 面板 / 弹窗标题 */
+    --fs-xl: 20px;                     /* 关键数值 */
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --lh-tight: 1.25;
+    --lh-base: 1.5;
+
+    /* ---------- 9. 间距（4px 基准） ---------- */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --section-pad-x: 14px;             /* 侧栏分区左右内边距 */
+
+    /* ---------- 10. 尺寸 ---------- */
+    --titlebar-h: 50px;
+    --modebar-h: 38px;
+    --statusbar-h: 28px;
+    --ctl-h: 30px;                     /* 标准控件高 */
+    --ctl-h-sm: 24px;                  /* 紧凑控件高 */
+    --label-w: 58px;
+
+    /* ---------- 11. 圆角 ---------- */
+    --radius-xs: 4px;
+    --radius-sm: 5px;                  /* 输入框、按钮 */
+    --radius-md: 6px;                  /* 卡片内元素、菜单项 */
+    --radius-lg: 8px;                  /* 卡片 */
+    --radius-xl: 12px;                 /* 弹窗 */
+    --radius-full: 9999px;
+
+    /* ---------- 12. 阴影（固定面板不用阴影，仅浮层使用） ---------- */
+    --shadow-pill: 0 1px 2px rgba(17, 24, 39, 0.07), 0 0 0 1px rgba(17, 24, 39, 0.03);
+    --shadow-float: 0 8px 24px -8px rgba(17, 24, 39, 0.16), 0 2px 6px rgba(17, 24, 39, 0.04);
+    --shadow-modal: 0 24px 56px -16px rgba(17, 24, 39, 0.26), 0 4px 12px rgba(17, 24, 39, 0.05);
+    --shadow-sheet: 0 10px 28px -6px rgba(17, 24, 39, 0.14), 0 0 0 1px rgba(17, 24, 39, 0.06);
+
+    /* ---------- 13. 动效 ---------- */
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --dur: .14s;
+}

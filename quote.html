@@ -1,0 +1,1823 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>报价单 · EasyTile</title>
+<link rel="icon" type="image/x-icon" href="assets/images/app.ico">
+<link rel="stylesheet" href="assets/css/phosphor.css" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-app); }
+  body.is-embed .q-titlebar { display: none; }
+  .q-titlebar { height: var(--titlebar-h); flex: 0 0 var(--titlebar-h); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 0 0 16px; background: var(--bg-panel); border-bottom: 1px solid var(--border-default); user-select: none; -webkit-user-select: none; }
+  .q-titlebar-main { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1; }
+  .q-titlebar-title { font-size: var(--fs-md); font-weight: 600; color: var(--text-main); white-space: nowrap; }
+  .q-titlebar-sub { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-scroll { flex: 1; min-height: 0; overflow: auto; }
+  .q-page { max-width: 95vw; margin: 0 auto; padding: 14px 18px 22px; display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
+  .q-card { background: var(--bg-panel); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+  .q-section { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .q-section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .q-section-title { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-main); }
+  .q-section-title i { color: var(--primary); font-size: 14px; }
+  .q-section-sub { font-size: var(--fs-xs); color: var(--text-light); display: inline-flex; align-items: center; gap: 6px; }
+  .q-head-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; }
+  .q-head-grid.cols-5 { grid-template-columns: 1.1fr 1.1fr 0.9fr 0.9fr 1fr; }
+  .q-merchant-row { display: flex; align-items: stretch; gap: 14px; }
+  .q-merchant-row .q-head-grid { flex: 1; min-width: 0; }
+  .q-logo-field { display: flex; flex-direction: column; gap: 4px; width: 144px; flex-shrink: 0; }
+  .q-logo-field > span { font-size: var(--fs-xs); color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+  .q-logo-box { position: relative; flex: 1; min-height: 36px; height: 36px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; padding: 3px 6px; cursor: pointer; overflow: hidden; transition: border-color .15s, background .15s; }
+  .q-logo-box:hover { border-color: var(--primary); background: var(--primary-subtle); }
+  .q-logo-box.has-logo { border-style: solid; border-color: var(--border-default); background: #FFFFFF; }
+  .q-logo-box img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; }
+  .q-logo-placeholder { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
+  .q-logo-clear { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border: 0; border-radius: 50%; background: rgba(15,23,42,.58); color: #FFFFFF; font-size: 11px; display: none; align-items: center; justify-content: center; cursor: pointer; padding: 0; line-height: 1; }
+  .q-logo-box.has-logo:hover .q-logo-clear { display: inline-flex; }
+  .q-logo-clear:hover { background: #DC2626; }
+  .q-table tr.q-sub-row td { background: #F8FAFC; color: var(--text-muted); padding-top: 2px; padding-bottom: 2px; border-bottom: 1px dashed var(--border-light); font-size: var(--fs-xs); }
+  .q-table tr.q-sub-row:hover td { background: #F1F5F9; }
+  .q-table tr.q-sub-row .c-no { color: var(--text-light); font-size: 11px; }
+  .q-table tr.q-sub-row .ui-input { height: 24px; font-size: var(--fs-xs); color: var(--text-secondary); }
+  .q-table tr.q-sub-row .amt-sub { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; padding-right: 6px; display: block; }
+  .q-table tr.q-sub-row .price-sub { color: var(--text-light); font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; padding-right: 6px; display: block; }
+  .q-sub-name-wrap { display: flex; align-items: center; gap: 6px; padding-left: 8px; }
+  .q-floor-tag { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: var(--radius-xs); background: var(--primary-soft); color: var(--primary-text); font-size: 11px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; }
+  .q-sub-spec { color: var(--text-light); font-family: var(--font-mono); padding-left: 6px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .q-sub-unit { color: var(--text-light); padding-left: 6px; display: block; }
+  .q-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .q-field > span { font-size: var(--fs-xs); color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+  .q-field .ui-input { width: 100%; }
+  .q-theme-bar { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .q-theme-pill { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-default); background: var(--bg-panel); font-size: var(--fs-xs); color: var(--text-secondary); cursor: pointer; transition: all .15s; }
+  .q-theme-pill:hover { border-color: var(--border-hover); color: var(--text-main); }
+  .q-theme-pill.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-text); font-weight: 600; }
+  .q-theme-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.18); flex-shrink: 0; }
+  .q-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .q-toolbar .grow { flex: 1; }
+  .q-hint { font-size: var(--fs-xs); color: var(--text-light); }
+  .q-btn-excel { background: #1D6F42; border-color: #1D6F42; color: #FFFFFF; }
+  .q-btn-excel:hover:not(:disabled) { background: #165934; border-color: #165934; color: #FFFFFF; }
+  .q-btn-pdf { background: #E03426; border-color: #C0392B; color: #FFFFFF; }
+  .q-btn-pdf:hover:not(:disabled) { background: #C42B1E; border-color: #A93226; color: #FFFFFF; }
+  .q-table-wrap { overflow: auto; }
+  table.q-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--fs-sm); }
+  .q-table th { background: var(--bg-subtle); color: var(--text-muted); font-weight: 500; font-size: var(--fs-xs); height: 32px; padding: 0 6px; border-bottom: 1px solid var(--border-default); text-align: left; position: sticky; top: 0; z-index: 1; }
+  .q-table td { padding: 4px 6px; border-bottom: 1px solid var(--border-light); vertical-align: middle; color: var(--text-main); }
+  .q-table tr:hover td { background: var(--bg-hover); }
+  .q-table .c-no { width: 44px; text-align: center; color: var(--text-muted); font-family: var(--font-mono); }
+  .q-table .c-name { width: 19%; }
+  .q-table .c-spec { width: 13%; }
+  .q-table .c-unit { width: 64px; }
+  .q-table .c-qty { width: 96px; }
+  .q-table .c-price { width: 104px; }
+  .q-table .c-amt { width: 112px; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .q-table .c-op { width: 40px; text-align: center; }
+  .q-table th.c-amt, .q-table th.c-qty, .q-table th.c-price { text-align: right; }
+  .q-table .ui-input { width: 100%; height: 28px; padding: 0 6px; font-size: var(--fs-sm); }
+  .q-table .ui-input.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .q-table .ui-input.amt-inp { font-weight: 600; color: var(--text-main); }
+  .q-table .ui-input.cell-edit[readonly] { border-color: transparent; background: transparent; cursor: pointer; user-select: none; }
+  .q-table .ui-input.cell-edit[readonly]:hover { border-color: var(--border-strong); background: var(--bg-panel); }
+  .q-table .ui-input.cell-edit.is-changed { background: #FFF8EB; border-color: #F0C987; }
+  .q-table .ui-input.cell-edit.is-editing { border-color: var(--border-focus) !important; background: var(--bg-panel) !important; box-shadow: var(--focus-ring); cursor: text; user-select: text; }
+  .q-table tr.is-custom td.c-no { color: var(--primary-text); }
+  .q-sep td { background: var(--bg-subtle) !important; color: var(--text-muted); font-size: var(--fs-xs); height: 26px; padding: 0 10px; }
+  .q-del { width: 26px; height: 26px; border: 0; background: transparent; color: var(--text-light); border-radius: var(--radius-sm); cursor: pointer; }
+  .q-del:hover { background: #FDECEC; color: #C2412D; }
+  .q-total { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 12px 16px; border-top: 1px solid var(--border-default); background: var(--bg-subtle); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+  .q-total .lbl { color: var(--text-muted); font-size: var(--fs-sm); }
+  .q-total .val { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--primary-text); font-variant-numeric: tabular-nums; }
+  .q-total .cn { color: var(--text-secondary); font-size: var(--fs-sm); }
+  .q-remark { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .q-remark textarea { width: 100%; min-height: 62px; height: auto; padding: 6px 8px; resize: vertical; line-height: 1.5; }
+  .q-empty { padding: 40px; text-align: center; color: var(--text-light); }
+  .q-add-menu { position: relative; }
+  .q-add-pop { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; min-width: 220px; max-height: 360px; overflow-y: auto; background: var(--bg-panel); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(17,24,39,.12); padding: 4px; display: none; }
+  .q-add-pop.open { display: block; }
+  .q-add-pop button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 0; background: transparent; border-radius: var(--radius-sm); cursor: pointer; font-size: var(--fs-sm); color: var(--text-secondary); text-align: left; }
+  .q-add-pop button:hover { background: var(--bg-hover); color: var(--text-main); }
+  .q-add-pop button small { color: var(--text-light); }
+  @media (max-width: 860px) {
+    .q-merchant-row { flex-direction: column; }
+    .q-logo-field { width: 100%; }
+    .q-head-grid, .q-head-grid.cols-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<header class="q-titlebar" id="q-titlebar" data-host-drag>
+  <div class="q-titlebar-main">
+    <span class="q-titlebar-title">生成报价</span>
+    <span id="q-titlebar-sub" class="q-titlebar-sub"></span>
+  </div>
+  <div class="win-controls" data-host-no-drag>
+    <button id="btn-win-min" type="button" class="win-btn" data-host-action="minimize" title="最小化" aria-label="最小化">
+      <i class="ph ph-minus"></i>
+    </button>
+    <button id="btn-win-max" type="button" class="win-btn" data-host-action="toggleMaximize" title="最大化" aria-label="最大化">
+      <i class="ph ph-square"></i>
+    </button>
+    <button id="btn-win-close" type="button" class="win-btn win-btn-close" data-host-action="close" title="关闭 (Esc)" aria-label="关闭">
+      <i class="ph ph-x"></i>
+    </button>
+  </div>
+</header>
+<div class="q-scroll">
+<div class="q-page">
+  <!-- 商家信息（本地缓存，刷新后保留） -->
+  <div class="q-card q-section">
+    <div class="q-section-head">
+      <div class="q-section-title">
+        <i class="ph ph-storefront"></i>
+        <span>商家信息</span>
+      </div>
+      <div class="q-theme-bar" id="theme-presets" title="导出 Excel 与 PDF 的表头/边框主题配色">
+        <span style="font-size:var(--fs-xs);color:var(--text-muted)">导出配色：</span>
+        <button type="button" class="q-theme-pill active" data-title="#FFE699" data-border="#5B9BD5"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#FFE699 50%,#5B9BD5 50%)"></span>经典蓝黄</button>
+        <button type="button" class="q-theme-pill" data-title="#D6E4FF" data-border="#2F7AE5"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#D6E4FF 50%,#2F7AE5 50%)"></span>商务蓝</button>
+        <button type="button" class="q-theme-pill" data-title="#D9F7E1" data-border="#389E5E"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#D9F7E1 50%,#389E5E 50%)"></span>清新绿</button>
+        <button type="button" class="q-theme-pill" data-title="#FDE8CC" data-border="#E07B2A"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#FDE8CC 50%,#E07B2A 50%)"></span>暖橙</button>
+        <button type="button" class="q-theme-pill" data-title="#EDE0FF" data-border="#7B4FCC"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#EDE0FF 50%,#7B4FCC 50%)"></span>典雅紫</button>
+        <button type="button" class="q-theme-pill" data-title="#F0F0F0" data-border="#888888"><span class="q-theme-swatch" style="background:linear-gradient(135deg,#F0F0F0 50%,#888888 50%)"></span>简约灰</button>
+      </div>
+    </div>
+    <div class="q-merchant-row">
+      <div class="q-logo-field">
+        <span>商家 Logo</span>
+        <div id="q-logo-box" class="q-logo-box" title="点击上传商家 Logo（支持 PNG / JPG / WebP / SVG，自适应宽高比）">
+          <img id="q-logo-preview" alt="商家 Logo" style="display:none" />
+          <span id="q-logo-placeholder" class="q-logo-placeholder"><i class="ph ph-upload-simple"></i><span>上传 Logo</span></span>
+          <button id="q-logo-clear" type="button" class="q-logo-clear" title="移除 Logo" aria-label="移除 Logo"><i class="ph ph-x"></i></button>
+        </div>
+        <input id="q-logo-input" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden />
+      </div>
+      <div class="q-head-grid">
+        <label class="q-field"><span>报价单位 / 商家名称</span><input id="q-company" class="ui-input" placeholder="选填，如：某某建材商行" /></label>
+        <label class="q-field"><span>商家联系人</span><input id="q-contact" class="ui-input" placeholder="选填，如：张经理" /></label>
+        <label class="q-field"><span>联系电话</span><input id="q-phone" class="ui-input" placeholder="电话 / 微信（选填）" /></label>
+        <label class="q-field"><span>联系地址</span><input id="q-address" class="ui-input" placeholder="门店或仓库地址（选填）" /></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 基础报价信息 -->
+  <div class="q-card q-section">
+    <div class="q-section-head">
+      <div class="q-section-title">
+        <i class="ph ph-file-text"></i>
+        <span>基础报价信息</span>
+      </div>
+      <span class="q-section-sub">报价单标题：<input id="q-title" class="ui-input" style="width:200px;height:24px;font-size:var(--fs-xs)" value="报    价    单" placeholder="报    价    单" /></span>
+    </div>
+    <div class="q-head-grid cols-5">
+      <label class="q-field"><span>客户名称</span><input id="q-client" class="ui-input" placeholder="选填" /></label>
+      <label class="q-field"><span>工程名称</span><input id="q-project" class="ui-input" /></label>
+      <label class="q-field"><span>报价日期</span><input id="q-date" type="date" class="ui-input" /></label>
+      <label class="q-field"><span>有效期至</span><input id="q-validity" type="date" class="ui-input" /></label>
+      <label class="q-field"><span>统计范围</span><input id="q-scope" class="ui-input" /></label>
+    </div>
+  </div>
+
+  <div class="q-toolbar">
+    <div class="q-add-menu">
+      <button id="btn-add" type="button" class="ui-btn"><i class="ph ph-plus"></i><span>添加自定义项</span><i class="ph ph-caret-down" style="font-size:10px"></i></button>
+      <div id="add-pop" class="q-add-pop" role="menu"></div>
+    </div>
+    <button id="btn-reset" type="button" class="ui-btn" title="材料信息、单价与数量恢复为工作站中的默认值（自定义项保留）"><i class="ph ph-arrow-counter-clockwise"></i><span>恢复默认价格</span></button>
+    <span class="q-hint">除序号外单元格均可双击修改，黄色表示已修改。</span>
+    <span class="grow"></span>
+    <button id="btn-export" type="button" class="ui-btn q-btn-excel"><i class="ph ph-microsoft-excel-logo"></i><span>导出 Excel</span></button>
+    <button id="btn-export-pdf" type="button" class="ui-btn q-btn-pdf"><i class="ph ph-file-pdf"></i><span>导出 PDF</span></button>
+  </div>
+
+  <div class="q-card" style="display:flex;flex-direction:column;min-height:0">
+    <div class="q-table-wrap">
+      <table class="q-table">
+        <thead>
+          <tr>
+            <th class="c-no" style="text-align:center">序号</th>
+            <th class="c-name">项目名称</th>
+            <th class="c-spec">规格</th>
+            <th class="c-unit">单位</th>
+            <th class="c-qty">数量</th>
+            <th class="c-price">单价(元)</th>
+            <th class="c-amt">金额(元)</th>
+            <th>备注</th>
+            <th class="c-op"></th>
+          </tr>
+        </thead>
+        <tbody id="q-body"></tbody>
+      </table>
+    </div>
+    <div class="q-total">
+      <span class="cn" id="q-total-cn"></span>
+      <span class="lbl">合计</span>
+      <span class="val" id="q-total">¥0.00</span>
+    </div>
+  </div>
+
+  <div class="q-card q-remark">
+    <span class="q-hint" style="color:var(--text-muted)">备注 / 报价说明</span>
+    <textarea id="q-remark" class="ui-input">1. 材料数量按图纸排砖计算，已含损耗，现场实际以复尺为准。
+2. 本报价有效期 30 天，如有疑问请随时与我们联系。</textarea>
+  </div>
+</div>
+</div>
+
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/desktop-host.js"></script>
+<script>
+(() => {
+  'use strict';
+  const DATA_KEY = 'tilecalc.quoteData';
+  const MERCHANT_KEY = 'tilecalc.merchantInfo';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+  const r2 = v => { const x = num(v); return Math.round((x + (x >= 0 ? Number.EPSILON : -Number.EPSILON)) * 100) / 100; };
+  const money = v => r2(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const formatLocalDate = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const getNowDate = () => formatLocalDate();
+  const getPlusDaysDate = (days = 30) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return formatLocalDate(d);
+  };
+
+  let data = null;          // 工作站传入的数据
+  let baseRows = [];        // 材料行（来自用量汇总）
+  let customRows = [];      // 自定义行
+  let uidSeq = 0;
+  const uid = () => 'q' + (++uidSeq);
+  const customKey = () => 'tilecalc.quoteCustom::' + ((data && data.projectName) || '默认');
+
+  // 主题配色（默认与 test.html 一致：经典蓝黄 #FFE699 / #5B9BD5）
+  let themeTitleColor = '#FFE699';
+  let themeBorderColor = '#5B9BD5';
+  let merchantLogo = { id: '', dataUrl: '', width: 0, height: 0 };
+
+  function syncLogoUI() {
+    const box = $('q-logo-box');
+    const img = $('q-logo-preview');
+    const ph = $('q-logo-placeholder');
+    const has = !!(merchantLogo && merchantLogo.dataUrl);
+    if (box) box.classList.toggle('has-logo', has);
+    if (img) {
+      img.style.display = has ? 'block' : 'none';
+      if (has) img.src = merchantLogo.dataUrl;
+      else img.removeAttribute('src');
+    }
+    if (ph) ph.style.display = has ? 'none' : 'inline-flex';
+  }
+
+  async function handleLogoFile(file) {
+    if (!file) return;
+    try {
+      const saved = await StorageDB.replaceImage(merchantLogo.id, file, {
+        owner: 'merchant-logo',
+        maxInputBytes: 5 * 1024 * 1024,
+        maxWidth: 480,
+        maxHeight: 180,
+        maxOutputBytes: 300 * 1024,
+        preferPng: true
+      });
+      merchantLogo = { id: saved.id, dataUrl: saved.dataUrl, width: saved.width, height: saved.height };
+      await StorageDB.pruneOwnerImages('merchant-logo', [saved.id]);
+      syncLogoUI();
+      saveMerchantInfo();
+    } catch (err) {
+      alert(err && err.message ? err.message : 'Logo 上传失败，请更换图片重试');
+    }
+  }
+
+  // ==================== 商家信息本地缓存（IndexedDB） ====================
+  async function applyMerchantInfo(m, onlyEmpty = false) {
+    if (!m || typeof m !== 'object') return;
+    const setVal = (id, v) => {
+      if (v == null) return;
+      if (!onlyEmpty || !$(id).value) $(id).value = v;
+    };
+    setVal('q-company', m.company);
+    setVal('q-contact', m.contact);
+    setVal('q-phone', m.phone);
+    setVal('q-address', m.address);
+    if (m.title && (!onlyEmpty || $('q-title').value === '报    价    单')) $('q-title').value = m.title;
+    if (m.themeTitleColor) themeTitleColor = m.themeTitleColor;
+    if (m.themeBorderColor) themeBorderColor = m.themeBorderColor;
+    if ((m.logoImageId || m.logoDataUrl) && (!onlyEmpty || !merchantLogo.dataUrl)) {
+      let dataUrl = '';
+      if (m.logoImageId) {
+        dataUrl = await StorageDB.getImageDataUrl(m.logoImageId);
+      }
+      if (!dataUrl && m.logoDataUrl) dataUrl = String(m.logoDataUrl);
+      if (dataUrl) {
+        merchantLogo = {
+          id: m.logoImageId || '',
+          dataUrl,
+          width: Number(m.logoWidth) || 0,
+          height: Number(m.logoHeight) || 0
+        };
+      }
+    } else if (!onlyEmpty && !m.logoImageId && !m.logoDataUrl) {
+      merchantLogo = { id: '', dataUrl: '', width: 0, height: 0 };
+    }
+    syncLogoUI();
+    syncThemePresetUI();
+  }
+
+  async function loadMerchantInfo() {
+    try {
+      const m = StorageDB.getJSON(MERCHANT_KEY, null);
+      if (m) await applyMerchantInfo(m, false);
+    } catch (e) { }
+  }
+
+  function saveMerchantInfo() {
+    const payload = {
+      company: $('q-company').value.trim(),
+      contact: $('q-contact').value.trim(),
+      phone: $('q-phone').value.trim(),
+      address: $('q-address').value.trim(),
+      title: $('q-title').value,
+      themeTitleColor,
+      themeBorderColor,
+      logoImageId: merchantLogo.id || '',
+      logoWidth: merchantLogo.width || 0,
+      logoHeight: merchantLogo.height || 0
+    };
+    try { StorageDB.setJSON(MERCHANT_KEY, payload); } catch (e) { }
+    DesktopHost.postToOpener({ type: 'tilecalc-merchant-save', payload });
+  }
+
+  $('q-logo-box')?.addEventListener('click', e => {
+    if (e.target.closest('#q-logo-clear')) return;
+    $('q-logo-input')?.click();
+  });
+  $('q-logo-clear')?.addEventListener('click', async e => {
+    e.stopPropagation();
+    const oldId = merchantLogo.id;
+    merchantLogo = { id: '', dataUrl: '', width: 0, height: 0 };
+    syncLogoUI();
+    await StorageDB.deleteImage(oldId);
+    await StorageDB.pruneOwnerImages('merchant-logo', []);
+    saveMerchantInfo();
+  });
+  $('q-logo-input')?.addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (file) handleLogoFile(file);
+  });
+
+  function syncThemePresetUI() {
+    const btns = document.querySelectorAll('#theme-presets .q-theme-pill');
+    btns.forEach(b => {
+      const match = b.dataset.title.toUpperCase() === themeTitleColor.toUpperCase() &&
+                    b.dataset.border.toUpperCase() === themeBorderColor.toUpperCase();
+      b.classList.toggle('active', match);
+    });
+  }
+
+  ['q-company', 'q-contact', 'q-phone', 'q-address', 'q-title'].forEach(id => {
+    const el = $(id);
+    if (el) {
+      el.addEventListener('input', saveMerchantInfo);
+      el.addEventListener('change', saveMerchantInfo);
+    }
+  });
+
+  $('theme-presets').addEventListener('click', e => {
+    const btn = e.target.closest('.q-theme-pill');
+    if (!btn) return;
+    themeTitleColor = btn.dataset.title || '#FFE699';
+    themeBorderColor = btn.dataset.border || '#5B9BD5';
+    syncThemePresetUI();
+    saveMerchantInfo();
+  });
+
+  // 初始化日期（商家信息与数据在 StorageDB.init() 完成后载入）
+  $('q-date').value = getNowDate();
+  $('q-validity').value = getPlusDaysDate(30);
+
+  // 「添加自定义项」菜单：由工作站随数据传入（presets.json quote.extraItems）
+  let extraItems = [];
+
+  async function loadData(payload) {
+    if (!payload || !Array.isArray(payload.items)) return;
+    if (payload.merchantInfo && typeof payload.merchantInfo === 'object') {
+      try {
+        if (!StorageDB.getJSON(MERCHANT_KEY, null)) {
+          const clean = Object.assign({}, payload.merchantInfo);
+          delete clean.logoDataUrl;
+          await StorageDB.setJSON(MERCHANT_KEY, clean);
+        }
+      } catch (e) { }
+      await loadMerchantInfo();
+      await applyMerchantInfo(payload.merchantInfo, true);
+    }
+    // 同一份数据重复到达（IndexedDB + postMessage）时不覆盖用户已改的内容
+    const sig = JSON.stringify(payload.items) + '|' + payload.scopeLabel + '|' + payload.projectName;
+    if (data && data._sig === sig) return;
+    data = Object.assign({}, payload, { _sig: sig });
+    extraItems = Array.isArray(payload.extraItems) ? payload.extraItems : [];
+    renderAddMenu();
+    $('q-project').value = data.projectName || '';
+    $('q-client').value = data.clientName || '';
+    $('q-date').value = data.date || getNowDate();
+    if (!$('q-validity').value) $('q-validity').value = getPlusDaysDate(30);
+    $('q-scope').value = data.multiFloor
+      ? (data.scopeLabel || '全屋多层汇总')
+      : ((data.floorName ? data.floorName + ' · ' : '') + (data.scopeLabel || '全部空间'));
+    const titleSubEl = $('q-titlebar-sub');
+    if (titleSubEl) {
+      titleSubEl.textContent = [data.projectName, data.multiFloor ? '' : data.floorName, data.scopeLabel].filter(Boolean).join(' · ');
+    }
+    baseRows = data.items.map(it => {
+      const qty = r2(it.qty), price = r2(it.price), amount = r2(qty * price);
+      const floorRows = Array.isArray(it.floorRows) && it.floorRows.length > 0
+        ? it.floorRows.map(fr => {
+            const fq = r2(fr.qty);
+            return {
+              floorName: fr.floorName || '',
+              qty: fq,
+              defQty: fq,
+              note: fr.note || '',
+              defNote: fr.note || ''
+            };
+          })
+        : [];
+      return {
+        id: uid(), custom: false,
+        name: it.name || '', spec: it.spec || '', unit: it.unit || '',
+        qty, price, amount, manualAmt: false, note: it.note || '',
+        defName: it.name || '', defSpec: it.spec || '', defUnit: it.unit || '',
+        defQty: qty, defPrice: price, defAmount: amount, defNote: it.note || '',
+        floorRows
+      };
+    });
+    try {
+      const saved = StorageDB.getJSON(customKey(), []);
+      customRows = Array.isArray(saved) ? saved.map(r => {
+        const qty = r2(r.qty), price = r2(r.price);
+        const manualAmt = !!r.manualAmt;
+        const amount = manualAmt ? r2(r.amount) : r2(qty * price);
+        return { id: uid(), custom: true, name: r.name || '', spec: r.spec || '', unit: r.unit || '', qty, price, amount, manualAmt, note: r.note || '' };
+      }) : [];
+    } catch (e) { customRows = []; }
+    render();
+  }
+  function saveCustom() {
+    try {
+      StorageDB.setJSON(customKey(), customRows.map(({ name, spec, unit, qty, price, amount, manualAmt, note }) => ({ name, spec, unit, qty, price, amount, manualAmt, note })));
+    } catch (e) { }
+  }
+
+  const allRows = () => baseRows.concat(customRows);
+  const rowAmount = r => r.manualAmt ? r2(r.amount) : r2(num(r.qty) * num(r.price));
+  const totalAmount = () => r2(allRows().reduce((s, r) => s + rowAmount(r), 0));
+
+  function rowHtml(r, idx) {
+    const chNum = (v, d) => (!r.custom && r2(v) !== r2(d)) ? ' is-changed' : '';
+    const chStr = (v, d) => (!r.custom && String(v || '') !== String(d || '')) ? ' is-changed' : '';
+    const amt = rowAmount(r);
+    let html = `<tr data-id="${r.id}" class="${r.custom ? 'is-custom' : ''}">
+      <td class="c-no">${String(idx + 1).padStart(2, '0')}</td>
+      <td class="c-name"><input class="ui-input cell-edit${chStr(r.name, r.defName)}" data-f="name" value="${esc(r.name)}" placeholder="项目名称" readonly title="双击修改 · ${esc(r.name)}" /></td>
+      <td class="c-spec"><input class="ui-input cell-edit font-mono${chStr(r.spec, r.defSpec)}" data-f="spec" value="${esc(r.spec)}" placeholder="—" readonly title="双击修改 · ${esc(r.spec || '—')}" /></td>
+      <td class="c-unit"><input class="ui-input cell-edit${chStr(r.unit, r.defUnit)}" data-f="unit" value="${esc(r.unit)}" placeholder="单位" readonly title="双击修改 · ${esc(r.unit)}" /></td>
+      <td class="c-qty"><input class="ui-input cell-edit num${chNum(r.qty, r.defQty)}" data-f="qty" type="number" min="0" step="0.01" value="${r.qty}" readonly title="双击修改数量" /></td>
+      <td class="c-price"><input class="ui-input cell-edit num${chNum(r.price, r.defPrice)}" data-f="price" type="number" min="0" step="0.01" value="${r.price}" readonly title="双击修改单价" /></td>
+      <td class="c-amt"><input class="ui-input cell-edit num amt-inp${r.manualAmt ? ' is-changed' : ''}" data-f="amount" type="number" min="0" step="0.01" value="${amt}" readonly title="双击修改金额" /></td>
+      <td><input class="ui-input cell-edit${chStr(r.note, r.defNote)}" data-f="note" value="${esc(r.note)}" placeholder="备注" readonly title="双击修改 · ${esc(r.note)}" /></td>
+      <td class="c-op"><button class="q-del" type="button" data-del title="${r.custom ? '删除该项' : '从报价中移除（恢复默认价格可找回）'}"><i class="ph ph-trash"></i></button></td>
+    </tr>`;
+    if (Array.isArray(r.floorRows) && r.floorRows.length > 0) {
+      r.floorRows.forEach((fr, si) => {
+        const subAmt = r2(num(fr.qty) * num(r.price));
+        const qCh = r2(fr.qty) !== r2(fr.defQty) ? ' is-changed' : '';
+        const nCh = String(fr.note || '') !== String(fr.defNote || '') ? ' is-changed' : '';
+        html += `<tr class="q-sub-row" data-parent-id="${r.id}" data-sub-idx="${si}">
+          <td class="c-no">└</td>
+          <td class="c-name"><div class="q-sub-name-wrap"><span class="q-floor-tag">${esc(fr.floorName)}</span><span>分项明细</span></div></td>
+          <td class="c-spec"><span class="q-sub-spec">${esc(r.spec || '—')}</span></td>
+          <td class="c-unit"><span class="q-sub-unit">${esc(r.unit || '')}</span></td>
+          <td class="c-qty"><input class="ui-input cell-edit num${qCh}" data-sub-f="qty" type="number" min="0" step="0.01" value="${fr.qty}" readonly title="双击修改 ${esc(fr.floorName)} 数量（自动汇总至主行）" /></td>
+          <td class="c-price"><span class="price-sub" data-sub-price>${money(r.price)}</span></td>
+          <td class="c-amt"><span class="amt-sub" data-sub-amt>${money(subAmt)}</span></td>
+          <td><input class="ui-input cell-edit${nCh}" data-sub-f="note" value="${esc(fr.note)}" placeholder="备注" readonly title="双击修改 · ${esc(fr.note)}" /></td>
+          <td class="c-op"></td>
+        </tr>`;
+      });
+    }
+    return html;
+  }
+
+  function syncSubRowsPriceUI(parentRow) {
+    if (!parentRow || !Array.isArray(parentRow.floorRows) || !parentRow.floorRows.length) return;
+    $('q-body').querySelectorAll(`tr.q-sub-row[data-parent-id="${parentRow.id}"]`).forEach(subTr => {
+      const si = Number(subTr.dataset.subIdx);
+      const fr = parentRow.floorRows[si];
+      if (!fr) return;
+      const pEl = subTr.querySelector('[data-sub-price]');
+      const aEl = subTr.querySelector('[data-sub-amt]');
+      if (pEl) pEl.textContent = money(parentRow.price);
+      if (aEl) aEl.textContent = money(r2(num(fr.qty) * num(parentRow.price)));
+    });
+  }
+
+  function syncParentFromSubRows(parentRow) {
+    if (!parentRow || !Array.isArray(parentRow.floorRows) || !parentRow.floorRows.length) return;
+    parentRow.qty = r2(parentRow.floorRows.reduce((s, fr) => s + Math.max(0, num(fr.qty)), 0));
+    parentRow.manualAmt = false;
+    parentRow.amount = r2(num(parentRow.qty) * num(parentRow.price));
+    const pTr = $('q-body').querySelector(`tr[data-id="${parentRow.id}"]`);
+    if (pTr) {
+      const qInp = pTr.querySelector('[data-f="qty"]');
+      const aInp = pTr.querySelector('[data-f="amount"]');
+      if (qInp) {
+        qInp.value = parentRow.qty;
+        qInp.classList.toggle('is-changed', r2(parentRow.qty) !== r2(parentRow.defQty));
+      }
+      if (aInp) {
+        aInp.value = parentRow.amount;
+        aInp.classList.remove('is-changed');
+      }
+    }
+    syncSubRowsPriceUI(parentRow);
+    updateTotal();
+  }
+
+  function render() {
+    const body = $('q-body');
+    if (!data) { body.innerHTML = `<tr><td colspan="9" class="q-empty">请在工作站「用量汇总」中点击「生成报价」打开本页</td></tr>`; updateTotal(); return; }
+    let html = baseRows.map((r, i) => rowHtml(r, i)).join('');
+    if (customRows.length) {
+      html += `<tr class="q-sep"><td colspan="9">自定义项</td></tr>`;
+      html += customRows.map((r, i) => rowHtml(r, baseRows.length + i)).join('');
+    }
+    if (!baseRows.length && !customRows.length) html = `<tr><td colspan="9" class="q-empty">暂无报价项</td></tr>`;
+    body.innerHTML = html;
+    updateTotal();
+  }
+  function updateTotal() {
+    const t = totalAmount();
+    $('q-total').textContent = '¥' + money(t);
+    $('q-total-cn').textContent = t > 0 ? '大写：' + toChineseMoney(t) : '';
+  }
+  const findRow = id => allRows().find(r => r.id === id);
+
+  function startCellEdit(inp) {
+    if (!inp) return;
+    inp.readOnly = false;
+    inp.classList.add('is-editing');
+    inp.focus();
+    try { inp.select(); } catch (e) { }
+  }
+
+  function finishCellEdit(inp) {
+    if (!inp || inp.readOnly) return;
+    const tr = inp.closest('tr');
+    if (tr && tr.classList.contains('q-sub-row')) {
+      const parent = findRow(tr.dataset.parentId);
+      const fr = parent && parent.floorRows && parent.floorRows[Number(tr.dataset.subIdx)];
+      const sf = inp.dataset.subF;
+      if (parent && fr && sf === 'qty') {
+        fr.qty = r2(Math.max(0, num(inp.value)));
+        inp.value = fr.qty;
+        inp.classList.toggle('is-changed', r2(fr.qty) !== r2(fr.defQty));
+        syncParentFromSubRows(parent);
+      }
+      inp.readOnly = true;
+      inp.classList.remove('is-editing');
+      return;
+    }
+    const r = tr ? findRow(tr.dataset.id) : null;
+    const f = inp.dataset.f;
+    if (r && (f === 'qty' || f === 'price' || f === 'amount')) {
+      r[f] = r2(Math.max(0, num(inp.value)));
+      inp.value = r[f];
+      if (f === 'qty' || f === 'price') {
+        r.manualAmt = false;
+        r.amount = r2(num(r.qty) * num(r.price));
+        const amtInp = tr.querySelector('[data-f="amount"]');
+        if (amtInp) {
+          amtInp.value = r.amount;
+          amtInp.classList.remove('is-changed');
+        }
+        if (f === 'price') syncSubRowsPriceUI(r);
+      }
+      updateTotal();
+    }
+    inp.readOnly = true;
+    inp.classList.remove('is-editing');
+    if (r && r.custom) saveCustom();
+  }
+
+  // 双击除序号外的任意单元格进入编辑
+  $('q-body').addEventListener('dblclick', e => {
+    const td = e.target.closest('td');
+    if (!td || td.classList.contains('c-no') || td.classList.contains('c-op')) return;
+    const inp = td.querySelector('.cell-edit');
+    if (inp) startCellEdit(inp);
+  });
+
+  $('q-body').addEventListener('focusout', e => {
+    const inp = e.target.closest('.cell-edit');
+    if (inp) finishCellEdit(inp);
+  });
+
+  $('q-body').addEventListener('keydown', e => {
+    const inp = e.target.closest('.cell-edit');
+    if (!inp || inp.readOnly) return;
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      e.preventDefault();
+      finishCellEdit(inp);
+      inp.blur();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const allInps = [...$('q-body').querySelectorAll('.cell-edit')];
+      const idx = allInps.indexOf(inp);
+      finishCellEdit(inp);
+      const next = allInps[idx + (e.shiftKey ? -1 : 1)];
+      if (next) startCellEdit(next);
+    }
+  });
+
+  $('q-body').addEventListener('input', e => {
+    const subInp = e.target.closest('[data-sub-f]');
+    if (subInp && !subInp.readOnly) {
+      const tr = subInp.closest('tr');
+      const parent = tr ? findRow(tr.dataset.parentId) : null;
+      const fr = parent && parent.floorRows && parent.floorRows[Number(tr.dataset.subIdx)];
+      if (!parent || !fr) return;
+      const sf = subInp.dataset.subF;
+      fr[sf] = subInp.value;
+      if (sf === 'qty') {
+        subInp.classList.toggle('is-changed', r2(subInp.value) !== r2(fr.defQty));
+        syncParentFromSubRows(parent);
+      } else {
+        subInp.classList.toggle('is-changed', String(subInp.value || '') !== String(fr.defNote || ''));
+        subInp.title = '双击修改 · ' + subInp.value;
+      }
+      return;
+    }
+    const inp = e.target.closest('[data-f]'); if (!inp || inp.readOnly) return;
+    const tr = inp.closest('tr'); const r = findRow(tr.dataset.id); if (!r) return;
+    const f = inp.dataset.f;
+    r[f] = inp.value;
+    if (f === 'qty' || f === 'price') {
+      r.manualAmt = false;
+      r.amount = r2(num(r.qty) * num(r.price));
+      const amtInp = tr.querySelector('[data-f="amount"]');
+      if (amtInp) {
+        amtInp.value = r.amount;
+        amtInp.classList.remove('is-changed');
+      }
+      if (!r.custom) inp.classList.toggle('is-changed', r2(inp.value) !== r2(f === 'qty' ? r.defQty : r.defPrice));
+      if (f === 'price') syncSubRowsPriceUI(r);
+      updateTotal();
+    } else if (f === 'amount') {
+      r.manualAmt = true;
+      r.amount = inp.value;
+      inp.classList.add('is-changed');
+      updateTotal();
+    } else {
+      const defMap = { name: 'defName', spec: 'defSpec', unit: 'defUnit', note: 'defNote' };
+      if (!r.custom && defMap[f]) {
+        inp.classList.toggle('is-changed', String(inp.value || '') !== String(r[defMap[f]] || ''));
+      }
+      inp.title = '双击修改 · ' + inp.value;
+    }
+    if (r.custom) saveCustom();
+  });
+  $('q-body').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    const id = b.closest('tr').dataset.id;
+    baseRows = baseRows.filter(r => r.id !== id);
+    const n = customRows.length;
+    customRows = customRows.filter(r => r.id !== id);
+    if (customRows.length !== n) saveCustom();
+    render();
+  });
+
+  // 添加自定义项
+  const pop = $('add-pop');
+  function renderAddMenu() {
+    pop.innerHTML = extraItems.map((p, i) => `<button type="button" data-preset="${i}"><span>${esc(p.name)}</span><small>${esc(p.unit || '')}</small></button>`).join('');
+  }
+  $('btn-add').addEventListener('click', e => { e.stopPropagation(); pop.classList.toggle('open'); });
+  document.addEventListener('click', () => pop.classList.remove('open'));
+  pop.addEventListener('click', e => {
+    const b = e.target.closest('[data-preset]'); if (!b) return;
+    if (!data) return;
+    const p = extraItems[+b.dataset.preset];
+    if (!p) return;
+    const initQty = p.qtyFromArea ? r2(data.totalArea || 0) : (p.qty || 1);
+    const initPrice = r2(p.price || 0);
+    customRows.push({
+      id: uid(), custom: true, name: p.blank ? '' : p.name, spec: p.spec || '', unit: p.unit || '',
+      qty: initQty, price: initPrice, amount: r2(initQty * initPrice), manualAmt: false, note: p.note || ''
+    });
+    saveCustom();
+    render();
+    pop.classList.remove('open');
+    const last = $('q-body').querySelector('tr.is-custom:last-child [data-f="' + (p.blank ? 'name' : 'price') + '"]');
+    if (last) startCellEdit(last);
+  });
+
+  $('btn-reset').addEventListener('click', () => {
+    if (!data) return;
+    const keepCustom = customRows;
+    data._sig = '';
+    loadData(Object.assign({}, data));
+    customRows = keepCustom;
+    render();
+  });
+
+  // 金额大写
+  function toChineseMoney(n) {
+    const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+    const big = ['元', '万', '亿', '兆'], small = ['', '拾', '佰', '仟'];
+    const head = n < 0 ? '负' : '';
+    const cents = Math.round((Math.abs(num(n)) + Number.EPSILON) * 100);
+    const jiao = Math.floor(cents / 10) % 10, fen = cents % 10;
+    let s = '';
+    if (jiao && fen) s = digit[jiao] + '角' + digit[fen] + '分';
+    else if (jiao) s = digit[jiao] + '角整';
+    else if (fen) s = '零' + digit[fen] + '分';
+    else s = '整';
+    let x = Math.floor(cents / 100);
+    if (x === 0) return head + (s === '整' ? '零元整' : s.replace(/^零/, ''));
+    let t = '';
+    for (let i = 0; i < big.length && x > 0; i++) {
+      let p = '';
+      for (let j = 0; j < small.length && x > 0; j++) { p = digit[x % 10] + small[j] + p; x = Math.floor(x / 10); }
+      t = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + big[i] + t;
+    }
+    t = t.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/零([万亿兆])/g, '$1').replace(/([亿兆])万/g, '$1');
+    return head + t + s;
+  }
+
+  function collectQuoteExportMeta() {
+    const projectName = $('q-project').value.trim() || '未命名项目';
+    const client = $('q-client').value.trim();
+    const date = $('q-date').value.trim() || getNowDate();
+    const validity = $('q-validity').value.trim() || getPlusDaysDate(30);
+    const scope = $('q-scope').value.trim();
+    const company = $('q-company').value.trim();
+    const contact = $('q-contact').value.trim();
+    const phone = $('q-phone').value.trim();
+    const address = $('q-address').value.trim();
+    const title = $('q-title').value.trim() || '报    价    单';
+    const remark = $('q-remark').value.replace(/\\n/g, '\n').trim();
+    const base = ((data && data.fileBase) || client || projectName).replace(/[\\/:*?"<>|]/g, '_');
+    const scopeTag = data && !data.multiFloor && data.scopeLabel && data.scopeLabel !== '全部空间' ? '_' + data.scopeLabel : '';
+    return {
+      projectName, client, date, validity, scope, company, contact, phone, address, title, remark,
+      logoDataUrl: merchantLogo.dataUrl || '',
+      logoWidth: merchantLogo.width || 0,
+      logoHeight: merchantLogo.height || 0,
+      filePrefix: `${base}${scopeTag}_报价单`
+    };
+  }
+
+  async function triggerDownload(blob, filename) {
+    return await DesktopHost.saveBlob(blob, filename);
+  }
+
+  // ==================== 导出 Excel（参考 test.html 格式） ====================
+  function loadScript(src) {
+    return new Promise((res, rej) => { if (window.ExcelJS) return res(); const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = () => rej(new Error(src)); document.head.appendChild(el); });
+  }
+
+  async function exportXlsx() {
+    if (!data) return;
+    const rows = allRows();
+    if (!rows.length) { alert('暂无报价项'); return; }
+    try { await loadScript('assets/vendor/exceljs/exceljs.min.js'); } catch (e) { alert('无法加载 Excel 组件 (assets/vendor/exceljs)'); return; }
+
+    saveMerchantInfo();
+    const q = collectQuoteExportMeta();
+    const total = totalAmount();
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'EasyTile';
+    workbook.created = new Date();
+    const worksheet = workbook.addWorksheet('报价单', {
+      pageSetup: {
+        paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, horizontalCentered: true,
+        margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 }
+      },
+      views: [{ showGridLines: false }]
+    });
+
+    const FONT = '微软雅黑';
+    const THEME_TITLE_ARGB = 'FF' + (themeTitleColor || '#FFE699').replace('#', '').toUpperCase();
+    const THEME_BORDER_ARGB = 'FF' + (themeBorderColor || '#5B9BD5').replace('#', '').toUpperCase();
+    const borderStyle = { style: 'thin', color: { argb: THEME_BORDER_ARGB } };
+    const getBorder = () => ({ top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle });
+
+    const columns = [
+      { header: '序号', width: 7 },
+      { header: '项目名称', width: 24 },
+      { header: '规格', width: 18 },
+      { header: '单位', width: 8 },
+      { header: '数量', width: 12 },
+      { header: '单价(元)', width: 13 },
+      { header: '金额(元)', width: 15 },
+      { header: '备注', width: 28 }
+    ];
+    const colCount = columns.length;
+    worksheet.columns = columns.map(c => ({ width: c.width }));
+
+    // 顶部品牌栏（上传了商家 Logo 时自动在标题上方插入自适应 Logo + 公司名）
+    let rowCursor = 1;
+    if (q.logoDataUrl) {
+      const rBrand = worksheet.addRow([]);
+      rBrand.height = 46;
+      worksheet.mergeCells(rowCursor, 1, rowCursor, colCount);
+      if (q.company) {
+        rBrand.getCell(1).value = q.company;
+        rBrand.getCell(1).font = { name: FONT, size: 14, bold: true, color: { argb: 'FF1F2937' } };
+        rBrand.getCell(1).alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
+      }
+      try {
+        let excelBase64 = q.logoDataUrl;
+        let excelExt = /^data:image\/jpe?g/i.test(excelBase64) ? 'jpeg' : 'png';
+        if (/^data:image\/webp/i.test(excelBase64)) {
+          excelBase64 = await new Promise((resolve) => {
+            const im = new Image();
+            im.onload = () => {
+              const cv = document.createElement('canvas');
+              cv.width = im.naturalWidth || 160;
+              cv.height = im.naturalHeight || 50;
+              cv.getContext('2d').drawImage(im, 0, 0);
+              resolve(cv.toDataURL('image/png'));
+            };
+            im.onerror = () => resolve('');
+            im.src = q.logoDataUrl;
+          });
+          excelExt = 'png';
+        }
+        if (excelBase64) {
+          const imgId = workbook.addImage({ base64: excelBase64, extension: excelExt });
+          const lw = q.logoWidth || 160;
+          const lh = q.logoHeight || 50;
+          const maxDrawH = 44;
+          const maxDrawW = 160;
+          const sc = Math.min(maxDrawW / lw, maxDrawH / lh);
+          const drawW = Math.max(12, Math.round(lw * sc));
+          const drawH = Math.max(12, Math.round(lh * sc));
+          worksheet.addImage(imgId, {
+            tl: { col: 0.15, row: rowCursor - 1 + 0.12 },
+            ext: { width: drawW, height: drawH }
+          });
+        }
+      } catch (e) { }
+      rowCursor++;
+    }
+
+    // 标题行（主题背景色）
+    const titleRowNum = rowCursor++;
+    const r1 = worksheet.addRow([]);
+    worksheet.mergeCells(titleRowNum, 1, titleRowNum, colCount);
+    r1.getCell(1).value = q.title || '报    价    单';
+    r1.getCell(1).font = { name: FONT, size: 22, bold: true, color: { argb: 'FF1F2937' } };
+    r1.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    r1.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: THEME_TITLE_ARGB } };
+    r1.height = 45;
+
+    // 商家信息行（报价单位、联系人、联系电话、联系地址）
+    const info1RowNum = rowCursor++;
+    const r2Row = worksheet.addRow([]);
+    worksheet.mergeCells(info1RowNum, 1, info1RowNum, 2);
+    r2Row.getCell(1).value = '报价单位：' + (q.company || '');
+    worksheet.mergeCells(info1RowNum, 3, info1RowNum, 4);
+    r2Row.getCell(3).value = '联系人：' + (q.contact || '');
+    worksheet.mergeCells(info1RowNum, 5, info1RowNum, 6);
+    r2Row.getCell(5).value = '联系电话：' + (q.phone || '');
+    worksheet.mergeCells(info1RowNum, 7, info1RowNum, colCount);
+    r2Row.getCell(7).value = '联系地址：' + (q.address || '');
+    r2Row.height = 25;
+
+    // 客户与工程/日期信息行
+    const info2RowNum = rowCursor++;
+    const r3Row = worksheet.addRow([]);
+    worksheet.mergeCells(info2RowNum, 1, info2RowNum, 2);
+    r3Row.getCell(1).value = '客户名称：' + (q.client || '');
+    worksheet.mergeCells(info2RowNum, 3, info2RowNum, 4);
+    r3Row.getCell(3).value = '工程名称：' + q.projectName + (q.scope ? '（' + q.scope + '）' : '');
+    worksheet.mergeCells(info2RowNum, 5, info2RowNum, 6);
+    r3Row.getCell(5).value = '报价日期：' + q.date;
+    worksheet.mergeCells(info2RowNum, 7, info2RowNum, colCount);
+    r3Row.getCell(7).value = '报价有效期至：' + q.validity;
+    r3Row.height = 25;
+
+    // 提示语行
+    const tipRowNum = rowCursor++;
+    const r4Row = worksheet.addRow([]);
+    worksheet.mergeCells(tipRowNum, 1, tipRowNum, colCount);
+    r4Row.getCell(1).value = '以下为报价清单，如有疑问请与我们联系';
+    r4Row.getCell(1).font = { name: FONT, size: 10, bold: true, color: { argb: 'FF1F2937' } };
+    r4Row.height = 25;
+
+    for (let i = titleRowNum; i <= tipRowNum; i++) {
+      const row = worksheet.getRow(i);
+      for (let j = 1; j <= colCount; j++) {
+        const cell = row.getCell(j);
+        cell.border = getBorder();
+        if (i > titleRowNum) {
+          if (i < tipRowNum) cell.font = { name: FONT, size: 10, color: { argb: 'FF1F2937' } };
+          cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+        }
+      }
+    }
+
+    // 表头行
+    const headerRowNum = rowCursor++;
+    const headerNames = columns.map(c => c.header);
+    const r5 = worksheet.addRow(headerNames);
+    r5.height = 30;
+    for (let j = 1; j <= colCount; j++) {
+      const cell = r5.getCell(j);
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: THEME_TITLE_ARGB } };
+      cell.font = { name: FONT, size: 11, bold: true, color: { argb: 'FF1F2937' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = getBorder();
+    }
+
+    // 报价明细行（含多层分子行；仅主行参与总合计 SUM，避免重复计费）
+    let currentRow = rowCursor;
+    const parentRowNums = [];
+    for (let i = 0; i < rows.length; i++) {
+      const item = rows[i];
+      const rn = currentRow;
+      parentRowNums.push(rn);
+      const qty = r2(item.qty);
+      const price = r2(item.price);
+      const amt = rowAmount(item);
+      const hasSubRows = Array.isArray(item.floorRows) && item.floorRows.length > 0;
+      const subSum = hasSubRows ? r2(item.floorRows.reduce((s, fr) => s + r2(fr.qty), 0)) : 0;
+      const qtyLinkedToSub = hasSubRows && Math.abs(subSum - qty) < 0.005;
+      const subStart = rn + 1;
+      const subEnd = rn + (hasSubRows ? item.floorRows.length : 0);
+
+      const rData = worksheet.addRow([
+        i + 1,
+        item.name || '',
+        item.spec || '',
+        item.unit || '',
+        qtyLinkedToSub ? { formula: `SUM(E${subStart}:E${subEnd})`, result: qty } : qty,
+        price,
+        item.manualAmt ? amt : { formula: `E${rn}*F${rn}`, result: amt },
+        item.note || ''
+      ]);
+      rData.height = Math.max(28, Math.ceil(String(item.note || '').length / 20) * 16 + 8);
+      for (let j = 1; j <= colCount; j++) {
+        const cell = rData.getCell(j);
+        cell.font = { name: FONT, size: 10, bold: hasSubRows && (j === 2 || j === 5 || j === 7), color: { argb: 'FF1F2937' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = getBorder();
+        if (j >= 5 && j <= 7) cell.numFmt = '#,##0.00';
+      }
+      currentRow++;
+
+      if (hasSubRows) {
+        for (const fr of item.floorRows) {
+          const srn = currentRow;
+          const sq = r2(fr.qty);
+          const sa = r2(sq * price);
+          const rSub = worksheet.addRow([
+            '',
+            `└ ${fr.floorName} 分项`,
+            item.spec || '',
+            item.unit || '',
+            sq,
+            { formula: `F${rn}`, result: price },
+            { formula: `E${srn}*F${srn}`, result: sa },
+            fr.note || ''
+          ]);
+          rSub.height = Math.max(22, Math.ceil(String(fr.note || '').length / 24) * 15 + 6);
+          for (let j = 1; j <= colCount; j++) {
+            const cell = rSub.getCell(j);
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+            cell.font = { name: FONT, size: 9, color: { argb: 'FF64748B' } };
+            cell.alignment = { vertical: 'middle', horizontal: j === 2 ? 'left' : 'center', indent: j === 2 ? 2 : 0, wrapText: true };
+            cell.border = getBorder();
+            if (j >= 5 && j <= 7) cell.numFmt = '#,##0.00';
+          }
+          currentRow++;
+        }
+      }
+    }
+
+    // 合计行（参考 test.html：合计小写 | ¥ xx.xx（动态 SUM 公式，仅汇总主行） | 合计人民币金额（大写） | 壹贰叁...）
+    const rTotal = worksheet.addRow([]);
+    rTotal.height = 30;
+    worksheet.mergeCells(currentRow, 1, currentRow, 2);
+    rTotal.getCell(1).value = '合计小写';
+    worksheet.mergeCells(currentRow, 3, currentRow, 4);
+    const totalFormula = parentRowNums.length
+      ? `SUM(${parentRowNums.map(n => `G${n}`).join(',')})`
+      : '0';
+    rTotal.getCell(3).value = { formula: totalFormula, result: total };
+    rTotal.getCell(3).numFmt = '¥#,##0.00';
+    worksheet.mergeCells(currentRow, 5, currentRow, 6);
+    rTotal.getCell(5).value = '合计人民币金额（大写）';
+    worksheet.mergeCells(currentRow, 7, currentRow, colCount);
+    rTotal.getCell(7).value = toChineseMoney(total);
+    for (let j = 1; j <= colCount; j++) {
+      const cell = rTotal.getCell(j);
+      cell.font = { name: FONT, size: 11, bold: true, color: { argb: 'FF1F2937' } };
+      cell.border = getBorder();
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    }
+    currentRow++;
+
+    // 备注行（参考 test.html：左侧合并“备注:”，右侧合并多行说明）
+    const rRemark = worksheet.addRow([]);
+    rRemark.height = Math.max(70, (q.remark.split('\n').length + 1) * 18 + 16);
+    worksheet.mergeCells(currentRow, 1, currentRow, 2);
+    rRemark.getCell(1).value = '备注:';
+    rRemark.getCell(1).font = { name: FONT, size: 10, bold: true, color: { argb: 'FF1F2937' } };
+    rRemark.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.mergeCells(currentRow, 3, currentRow, colCount);
+    rRemark.getCell(3).value = q.remark || '';
+    rRemark.getCell(3).font = { name: FONT, size: 10, color: { argb: 'FF1F2937' } };
+    rRemark.getCell(3).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+    for (let j = 1; j <= colCount; j++) {
+      rRemark.getCell(j).border = getBorder();
+    }
+
+    worksheet.pageSetup.printTitlesRow = `${headerRowNum}:${headerRowNum}`;
+
+    const buf = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const res = await triggerDownload(blob, `${q.filePrefix}.xlsx`);
+    if (res && res.saved && !res.cancelled) {
+      DesktopHost.postToOpener({ type: 'tilecalc-quote-exported', format: 'Excel', count: rows.length, total: money(total) });
+    }
+  }
+
+  // ==================== 导出 PDF（参考 test.html 格式，内嵌子集字体） ====================
+  const PdfFont = {
+    loaded: false,
+    loadingPromise: null,
+    rawBytes: null,
+    tables: {},
+    unitsPerEm: 256,
+    ascent: 225,
+    descent: -31,
+    numGlyphs: 0,
+    advanceWidths: null,
+    codeToGid: new Map(),
+    loca: null,
+
+    async ensureLoaded() {
+      if (this.loaded) return true;
+      if (this.loadingPromise) return this.loadingPromise;
+      this.loadingPromise = (async () => {
+        const resp = await fetch('assets/fonts/chinese-font.ttf');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const ab = await resp.arrayBuffer();
+        this.parseBuffer(new Uint8Array(ab));
+        this.loaded = true;
+        return true;
+      })();
+      return this.loadingPromise;
+    },
+
+    parseBuffer(bytes) {
+      this.rawBytes = bytes;
+      const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      const numTables = dv.getUint16(4, false);
+      this.tables = {};
+      for (let i = 0; i < numTables; i++) {
+        const pos = 12 + i * 16;
+        const tag = String.fromCharCode(dv.getUint8(pos), dv.getUint8(pos + 1), dv.getUint8(pos + 2), dv.getUint8(pos + 3));
+        this.tables[tag] = {
+          checksum: dv.getUint32(pos + 4, false),
+          offset: dv.getUint32(pos + 8, false),
+          length: dv.getUint32(pos + 12, false)
+        };
+      }
+      const headOff = this.tables['head'].offset;
+      this.unitsPerEm = dv.getUint16(headOff + 18, false) || 256;
+      const indexToLocFormat = dv.getInt16(headOff + 50, false);
+      const hheaOff = this.tables['hhea'].offset;
+      this.ascent = dv.getInt16(hheaOff + 4, false);
+      this.descent = dv.getInt16(hheaOff + 6, false);
+      const numHMetrics = dv.getUint16(hheaOff + 34, false);
+      const maxpOff = this.tables['maxp'].offset;
+      const numGlyphs = dv.getUint16(maxpOff + 4, false);
+      this.numGlyphs = numGlyphs;
+      const hmtxOff = this.tables['hmtx'].offset;
+      this.advanceWidths = new Uint16Array(numGlyphs);
+      let lastAdv = this.unitsPerEm;
+      for (let i = 0; i < numGlyphs; i++) {
+        if (i < numHMetrics) lastAdv = dv.getUint16(hmtxOff + i * 4, false);
+        this.advanceWidths[i] = lastAdv;
+      }
+      this.codeToGid.clear();
+      const cmapOff = this.tables['cmap'].offset;
+      const numCmapTables = dv.getUint16(cmapOff + 2, false);
+      for (let i = 0; i < numCmapTables; i++) {
+        const subOff = cmapOff + dv.getUint32(cmapOff + 4 + i * 8 + 4, false);
+        const fmt = dv.getUint16(subOff, false);
+        if (fmt === 4) {
+          const segCount = dv.getUint16(subOff + 6, false) >> 1;
+          const endCodesOff = subOff + 14;
+          const startCodesOff = endCodesOff + segCount * 2 + 2;
+          const idDeltasOff = startCodesOff + segCount * 2;
+          const idRangeOffsetsOff = idDeltasOff + segCount * 2;
+          for (let s = 0; s < segCount; s++) {
+            const endCode = dv.getUint16(endCodesOff + s * 2, false);
+            const startCode = dv.getUint16(startCodesOff + s * 2, false);
+            const idDelta = dv.getInt16(idDeltasOff + s * 2, false);
+            const idRangeOffsetPos = idRangeOffsetsOff + s * 2;
+            const idRangeOffset = dv.getUint16(idRangeOffsetPos, false);
+            if (startCode === 0xFFFF) break;
+            for (let c = startCode; c <= endCode; c++) {
+              let gid = 0;
+              if (idRangeOffset === 0) gid = (c + idDelta) & 0xFFFF;
+              else {
+                const rawGid = dv.getUint16(idRangeOffsetPos + idRangeOffset + (c - startCode) * 2, false);
+                if (rawGid !== 0) gid = (rawGid + idDelta) & 0xFFFF;
+              }
+              if (gid > 0 && gid < numGlyphs) this.codeToGid.set(c, gid);
+            }
+          }
+          break;
+        }
+      }
+      const locaOff = this.tables['loca'].offset;
+      this.loca = new Uint32Array(numGlyphs + 1);
+      for (let i = 0; i <= numGlyphs; i++) {
+        this.loca[i] = indexToLocFormat === 1
+          ? dv.getUint32(locaOff + i * 4, false)
+          : dv.getUint16(locaOff + i * 2, false) * 2;
+      }
+    },
+
+    charToGid(cp) {
+      return this.codeToGid.get(cp) || this.codeToGid.get(0x20) || 1;
+    },
+
+    charAdvanceEm(cp) {
+      const gid = this.codeToGid.get(cp);
+      if (!gid) return cp > 127 ? 1.0 : 0.55;
+      return (this.advanceWidths[gid] || this.unitsPerEm) / this.unitsPerEm;
+    },
+
+    measureTextEm(str) {
+      let total = 0;
+      for (const ch of String(str ?? '')) total += this.charAdvanceEm(ch.codePointAt(0));
+      return total;
+    },
+
+    buildSubsetTtf(usedGidsSet) {
+      const buf = this.rawBytes;
+      const glyfOff = this.tables['glyf'].offset;
+      const numGlyphs = this.numGlyphs;
+      const glyphChunks = [];
+      const newLoca = new Uint32Array(numGlyphs + 1);
+      let curGlyfLen = 0;
+      for (let g = 0; g < numGlyphs; g++) {
+        newLoca[g] = curGlyfLen;
+        if (g === 0 || usedGidsSet.has(g)) {
+          const start = this.loca[g], end = this.loca[g + 1];
+          if (end > start) {
+            const slice = buf.subarray(glyfOff + start, glyfOff + end);
+            glyphChunks.push(slice);
+            curGlyfLen += slice.length;
+            const pad = (4 - (curGlyfLen & 3)) & 3;
+            if (pad > 0) { glyphChunks.push(new Uint8Array(pad)); curGlyfLen += pad; }
+          }
+        }
+      }
+      newLoca[numGlyphs] = curGlyfLen;
+      const newGlyfBytes = new Uint8Array(curGlyfLen);
+      let p = 0;
+      for (const ch of glyphChunks) { newGlyfBytes.set(ch, p); p += ch.length; }
+      const newLocaBytes = new Uint8Array((numGlyphs + 1) * 4);
+      const locaDv = new DataView(newLocaBytes.buffer);
+      for (let g = 0; g <= numGlyphs; g++) locaDv.setUint32(g * 4, newLoca[g], false);
+      const tagNames = Object.keys(this.tables);
+      const headerLen = 12 + tagNames.length * 16;
+      const tableBuffers = {};
+      let totalBodyLen = 0;
+      for (const tag of tagNames) {
+        let tb;
+        if (tag === 'glyf') tb = newGlyfBytes;
+        else if (tag === 'loca') tb = newLocaBytes;
+        else { const t = this.tables[tag]; tb = new Uint8Array(buf.subarray(t.offset, t.offset + t.length)); }
+        tableBuffers[tag] = tb;
+        totalBodyLen += (tb.length + 3) & ~3;
+      }
+      const out = new Uint8Array(headerLen + totalBodyLen);
+      out.set(buf.subarray(0, 12), 0);
+      const outDv = new DataView(out.buffer);
+      let curOff = headerLen;
+      tagNames.forEach((tag, idx) => {
+        const tb = tableBuffers[tag];
+        const dirPos = 12 + idx * 16;
+        for (let k = 0; k < 4; k++) outDv.setUint8(dirPos + k, tag.charCodeAt(k));
+        outDv.setUint32(dirPos + 4, this.tables[tag].checksum, false);
+        outDv.setUint32(dirPos + 8, curOff, false);
+        outDv.setUint32(dirPos + 12, tb.length, false);
+        out.set(tb, curOff);
+        curOff += (tb.length + 3) & ~3;
+      });
+      return out;
+    }
+  };
+
+  function hexToRgb01(hex) {
+    const h = String(hex || '#000000').replace('#', '').trim();
+    const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16) || 0;
+    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+  }
+
+  function wrapPdfText(text, maxWidthPt, fontSize) {
+    const paragraphs = String(text ?? '').split(/\r?\n/);
+    const lines = [];
+    const maxEm = Math.max(1, maxWidthPt / fontSize);
+    for (const para of paragraphs) {
+      if (!para) { lines.push(''); continue; }
+      let cur = '', curEm = 0;
+      for (const ch of para) {
+        const w = PdfFont.charAdvanceEm(ch.codePointAt(0));
+        if (cur && curEm + w > maxEm) {
+          lines.push(cur);
+          cur = ch;
+          curEm = w;
+        } else {
+          cur += ch;
+          curEm += w;
+        }
+      }
+      if (cur || !lines.length) lines.push(cur);
+    }
+    return lines.length ? lines : [''];
+  }
+
+  async function deflateBytes(u8) {
+    if (typeof CompressionStream === 'undefined') return null;
+    try {
+      const st = new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate'));
+      return new Uint8Array(await new Response(st).arrayBuffer());
+    } catch (e) { return null; }
+  }
+
+  function pdfU16(s) {
+    let hex = 'FEFF';
+    for (let i = 0; i < s.length; i++) hex += s.charCodeAt(i).toString(16).toUpperCase().padStart(4, '0');
+    return '<' + hex + '>';
+  }
+
+  async function exportPdf() {
+    if (!data) return;
+    const rows = allRows();
+    if (!rows.length) { alert('暂无报价项'); return; }
+    const btn = $('btn-export-pdf');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner spin"></i><span>正在生成 PDF…</span>';
+    try {
+      await PdfFont.ensureLoaded();
+      saveMerchantInfo();
+      const q = collectQuoteExportMeta();
+      const total = totalAmount();
+
+      const used = new Map();
+      const spGid = PdfFont.charToGid(0x20);
+      if (spGid > 0) used.set(spGid, 0x20);
+      const encText = s => {
+        let hex = '<';
+        for (const ch of String(s ?? '')) {
+          const cp = ch.codePointAt(0);
+          let gid = PdfFont.charToGid(cp) || 0;
+          if (!gid && cp !== 0x20) gid = PdfFont.charToGid(0x3F) || 1;
+          if (!used.has(gid)) used.set(gid, cp);
+          hex += gid.toString(16).toUpperCase().padStart(4, '0');
+        }
+        return hex + '>';
+      };
+
+      const f2 = v => (Math.round(v * 100) / 100).toFixed(2);
+      const [trR, trG, trB] = hexToRgb01(themeTitleColor || '#FFE699');
+      const [bdR, bdG, bdB] = hexToRgb01(themeBorderColor || '#5B9BD5');
+      const [txR, txG, txB] = [0.12, 0.16, 0.22];
+
+      const PW = 841.89; // A4 横向宽度 (pt)
+      const M = 36;      // 页边距 (pt)
+      const CW = PW - M * 2; // 769.89 pt
+
+      // 将上传的商家 Logo 光栅化为白底高清晰 JPEG 字节（供 PDF 原生 /DCTDecode XObject 嵌入，自适应宽高比）
+      let pdfLogo = null;
+      if (q.logoDataUrl) {
+        try {
+          pdfLogo = await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              const nw = img.naturalWidth || img.width || 1;
+              const nh = img.naturalHeight || img.height || 1;
+              const cv = document.createElement('canvas');
+              cv.width = nw;
+              cv.height = nh;
+              const cx2 = cv.getContext('2d');
+              cx2.fillStyle = '#FFFFFF';
+              cx2.fillRect(0, 0, nw, nh);
+              cx2.drawImage(img, 0, 0, nw, nh);
+              const jpgUrl = cv.toDataURL('image/jpeg', 0.92);
+              const b64 = jpgUrl.split(',')[1] || '';
+              const bin = atob(b64);
+              const bytes = new Uint8Array(bin.length);
+              for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+              const maxPtH = 30, maxPtW = 140;
+              const sc = Math.min(maxPtW / nw, maxPtH / nh);
+              resolve({ bytes, pw: nw, ph: nh, drawW: nw * sc, drawH: nh * sc });
+            };
+            img.onerror = () => resolve(null);
+            img.src = q.logoDataUrl;
+          });
+        } catch (e) { pdfLogo = null; }
+      }
+
+      // 预计算各区块高度，像 test.html 一样自适应页面高度（最小为 A4 高度 595.28pt）
+      const hasTopBrand = !!(q.company || pdfLogo);
+      const topHeaderH = hasTopBrand ? (pdfLogo ? Math.max(38, Math.ceil(pdfLogo.drawH + 12)) : 34) : 0;
+      const titleBannerH = 38;
+      const titleBannerGap = 12;
+
+      // 信息表：3 行，4 列等宽
+      const infoColW = CW / 4;
+      const infoRow1 = [
+        `报价单位：${q.company || ''}`,
+        `联系人：${q.contact || ''}`,
+        `联系电话：${q.phone || ''}`,
+        `联系地址：${q.address || ''}`
+      ];
+      const infoRow2 = [
+        `客户名称：${q.client || ''}`,
+        `工程名称：${q.projectName}${q.scope ? '（' + q.scope + '）' : ''}`,
+        `报价日期：${q.date}`,
+        `报价有效期至：${q.validity}`
+      ];
+      const infoFontSize = 10;
+      const infoLineH = 14;
+      const infoPadX = 6, infoPadY = 6;
+      const infoRow1Lines = infoRow1.map(s => wrapPdfText(s, infoColW - infoPadX * 2, infoFontSize));
+      const infoRow2Lines = infoRow2.map(s => wrapPdfText(s, infoColW - infoPadX * 2, infoFontSize));
+      const infoRow1H = Math.max(24, Math.max(...infoRow1Lines.map(l => l.length)) * infoLineH + infoPadY * 2);
+      const infoRow2H = Math.max(24, Math.max(...infoRow2Lines.map(l => l.length)) * infoLineH + infoPadY * 2);
+      const infoRow3H = 24;
+      const infoTableH = infoRow1H + infoRow2H + infoRow3H;
+      const infoTableGap = 10;
+
+      // 明细表列宽：序号、项目名称、规格、单位、数量、单价(元)、金额(元)、备注
+      const colWidths = [38, 162, 114, 46, 68, 76, 86, CW - (38 + 162 + 114 + 46 + 68 + 76 + 86)];
+      const headers = ['序号', '项目名称', '规格', '单位', '数量', '单价(元)', '金额(元)', '备注'];
+      const thH = 26;
+      const cellFontSize = 9.5;
+      const cellLineH = 13.5;
+      const subFontSize = 8.5;
+      const subLineH = 12;
+      const cellPadX = 5, cellPadY = 5;
+
+      const preparedRows = [];
+      rows.forEach((r, idx) => {
+        const qty = r2(r.qty), price = r2(r.price), amt = rowAmount(r);
+        const hasSub = Array.isArray(r.floorRows) && r.floorRows.length > 0;
+        const cells = [
+          String(idx + 1),
+          r.name || '',
+          r.spec || '',
+          r.unit || '',
+          money(qty),
+          money(price),
+          money(amt),
+          r.note || ''
+        ];
+        const wrapped = cells.map((txt, cIdx) => wrapPdfText(txt, colWidths[cIdx] - cellPadX * 2, cellFontSize));
+        const maxL = Math.max(1, ...wrapped.map(lines => lines.length));
+        const rowH = Math.max(26, maxL * cellLineH + cellPadY * 2);
+        preparedRows.push({ wrapped, rowH, isSub: false, boldCols: hasSub ? new Set([1, 4, 6]) : null });
+
+        if (hasSub) {
+          for (const fr of r.floorRows) {
+            const sq = r2(fr.qty), sa = r2(sq * price);
+            const subCells = [
+              '',
+              `└ ${fr.floorName} 分项`,
+              r.spec || '',
+              r.unit || '',
+              money(sq),
+              money(price),
+              money(sa),
+              fr.note || ''
+            ];
+            const sw = subCells.map((txt, cIdx) => wrapPdfText(txt, colWidths[cIdx] - cellPadX * 2, subFontSize));
+            const sMaxL = Math.max(1, ...sw.map(lines => lines.length));
+            const sRowH = Math.max(20, sMaxL * subLineH + 6);
+            preparedRows.push({ wrapped: sw, rowH: sRowH, isSub: true, boldCols: null });
+          }
+        }
+      });
+
+      const itemsTotalH = preparedRows.reduce((s, r) => s + r.rowH, 0);
+      const sumRowH = 26;
+      const remarkSpanLeftW = colWidths[0] + colWidths[1];
+      const remarkSpanRightW = CW - remarkSpanLeftW;
+      const remarkLines = wrapPdfText(q.remark || '', remarkSpanRightW - 12, cellFontSize);
+      const remarkRowH = Math.max(54, remarkLines.length * cellLineH + 16);
+
+      // 标准 A4 横向分页（841.89 × 595.28 pt）
+      const PH = 595.28;
+      const footerH = 18;
+      const usableBottom = M + footerH;
+      const usableTop = PH - M;
+      const page1HeadH = topHeaderH + titleBannerH + titleBannerGap + infoTableH + infoTableGap + thH;
+      const contHeaderH = 18;
+      const contHeaderGap = 6;
+      const contHeadH = contHeaderH + contHeaderGap + thH;
+      const contMaxBodyH = usableTop - usableBottom - contHeadH;
+
+      const pagesPlan = [];
+      let curPage = {
+        isFirst: true,
+        rows: [],
+        drawSum: false,
+        drawRemark: false,
+        usedH: page1HeadH
+      };
+      const pushNewPage = () => {
+        pagesPlan.push(curPage);
+        curPage = {
+          isFirst: false,
+          rows: [],
+          drawSum: false,
+          drawRemark: false,
+          usedH: contHeadH
+        };
+      };
+
+      for (const row of preparedRows) {
+        const limit = usableTop - usableBottom;
+        if (curPage.rows.length > 0 && curPage.usedH + row.rowH > limit) {
+          pushNewPage();
+        }
+        curPage.rows.push(row);
+        curPage.usedH += row.rowH;
+      }
+
+      // 合计行与备注行优先同页放在末尾；空间不足则顺延到下一页
+      const limit = usableTop - usableBottom;
+      if (curPage.usedH + sumRowH + remarkRowH <= limit) {
+        curPage.drawSum = true;
+        curPage.drawRemark = true;
+      } else if (curPage.usedH + sumRowH <= limit && remarkRowH > contMaxBodyH) {
+        curPage.drawSum = true;
+        pushNewPage();
+        curPage.drawRemark = true;
+      } else {
+        pushNewPage();
+        curPage.drawSum = true;
+        if (curPage.usedH + sumRowH + remarkRowH <= limit || remarkRowH > contMaxBodyH) {
+          curPage.drawRemark = true;
+        } else {
+          pushNewPage();
+          curPage.drawRemark = true;
+        }
+      }
+      pagesPlan.push(curPage);
+
+      const totalPages = pagesPlan.length;
+      const pageStreams = [];
+
+      const createPageOps = () => {
+        const ops = [];
+        ops.push('1 1 1 rg', `0 0 ${f2(PW)} ${f2(PH)} re f`);
+        const drawRectFill = (x, yTop, w, h, r, g, b) => {
+          ops.push(`${f2(r)} ${f2(g)} ${f2(b)} rg`, `${f2(x)} ${f2(yTop - h)} ${f2(w)} ${f2(h)} re f`);
+        };
+        const drawRectStroke = (x, yTop, w, h, lw = 1) => {
+          ops.push(`${f2(bdR)} ${f2(bdG)} ${f2(bdB)} RG`, `${f2(lw)} w`, `${f2(x)} ${f2(yTop - h)} ${f2(w)} ${f2(h)} re S`);
+        };
+        const drawLine = (x1, y1, x2, y2, lw = 1) => {
+          ops.push(`${f2(bdR)} ${f2(bdG)} ${f2(bdB)} RG`, `${f2(lw)} w`, `${f2(x1)} ${f2(y1)} m ${f2(x2)} ${f2(y2)} l S`);
+        };
+        const drawTextLine = (str, x, yBaseline, size, bold = false, rgb = null) => {
+          if (!str) return;
+          const [r, g, b] = rgb || [txR, txG, txB];
+          if (bold) {
+            ops.push('q', '2 Tr', `${f2(size * 0.032)} w`, `${f2(r)} ${f2(g)} ${f2(b)} rg`, `${f2(r)} ${f2(g)} ${f2(b)} RG`,
+              `BT /F1 ${f2(size)} Tf 1 0 0 1 ${f2(x)} ${f2(yBaseline)} Tm ${encText(str)} Tj ET`, 'Q');
+          } else {
+            ops.push(`${f2(r)} ${f2(g)} ${f2(b)} rg`,
+              `BT /F1 ${f2(size)} Tf 1 0 0 1 ${f2(x)} ${f2(yBaseline)} Tm ${encText(str)} Tj ET`);
+          }
+        };
+        const drawCellLines = (lines, x, yTop, w, h, size, lineH, align = 'center', bold = false, vAlign = 'middle', padX = 6, padY = 6, rgb = null) => {
+          const blockH = lines.length * lineH;
+          let firstBaseline;
+          if (vAlign === 'top') {
+            firstBaseline = yTop - padY - size * 0.82;
+          } else {
+            const topOfBlock = yTop - (h - blockH) / 2;
+            firstBaseline = topOfBlock - size * 0.82;
+          }
+          for (let i = 0; i < lines.length; i++) {
+            const ln = lines[i];
+            const tw = PdfFont.measureTextEm(ln) * size;
+            let tx = x + padX;
+            if (align === 'center') tx = x + (w - tw) / 2;
+            else if (align === 'right') tx = x + w - padX - tw;
+            drawTextLine(ln, tx, firstBaseline - i * lineH, size, bold, rgb);
+          }
+        };
+        return { ops, drawRectFill, drawRectStroke, drawLine, drawTextLine, drawCellLines };
+      };
+
+      const subTxtRgb = [0.39, 0.45, 0.55];
+      const mutedTxtRgb = [0.45, 0.50, 0.58];
+
+      for (let pIdx = 0; pIdx < totalPages; pIdx++) {
+        const pg = pagesPlan[pIdx];
+        const { ops, drawRectFill, drawRectStroke, drawLine, drawTextLine, drawCellLines } = createPageOps();
+        let curY = usableTop;
+
+        if (pg.isFirst) {
+          // 1. 顶部品牌栏：左侧自适应商家 Logo + 右侧公司名称 + 分割线
+          if (hasTopBrand) {
+            const lineY = curY - topHeaderH + 8;
+            if (pdfLogo) {
+              const logoBottomY = lineY + Math.max(4, (topHeaderH - 8 - pdfLogo.drawH) * 0.5);
+              ops.push('q', `${f2(pdfLogo.drawW)} 0 0 ${f2(pdfLogo.drawH)} ${f2(M)} ${f2(logoBottomY)} cm /Im1 Do`, 'Q');
+            }
+            if (q.company) {
+              const compSize = 15;
+              const compW = PdfFont.measureTextEm(q.company) * compSize;
+              drawTextLine(q.company, PW - M - compW, lineY + 8, compSize, true);
+            }
+            drawLine(M, lineY, PW - M, lineY, 1);
+            curY -= topHeaderH;
+          }
+
+          // 2. 报价单标题横幅
+          drawRectFill(M, curY, CW, titleBannerH, trR, trG, trB);
+          drawCellLines([q.title || '报    价    单'], M, curY, CW, titleBannerH, 17, 20, 'center', true, 'middle');
+          curY -= (titleBannerH + titleBannerGap);
+
+          // 3. 基础信息表
+          for (let c = 0; c < 4; c++) {
+            const cx = M + c * infoColW;
+            drawRectStroke(cx, curY, infoColW, infoRow1H, 1);
+            drawCellLines(infoRow1Lines[c], cx, curY, infoColW, infoRow1H, infoFontSize, infoLineH, 'left', false, 'middle', infoPadX, infoPadY);
+          }
+          curY -= infoRow1H;
+
+          for (let c = 0; c < 4; c++) {
+            const cx = M + c * infoColW;
+            drawRectStroke(cx, curY, infoColW, infoRow2H, 1);
+            drawCellLines(infoRow2Lines[c], cx, curY, infoColW, infoRow2H, infoFontSize, infoLineH, 'left', false, 'middle', infoPadX, infoPadY);
+          }
+          curY -= infoRow2H;
+
+          drawRectStroke(M, curY, CW, infoRow3H, 1);
+          drawCellLines(['以下为报价清单，如有疑问请与我们联系'], M, curY, CW, infoRow3H, infoFontSize, infoLineH, 'left', true, 'middle', infoPadX, infoPadY);
+          curY -= (infoRow3H + infoTableGap);
+        } else {
+          const contTitle = `${(q.title || '报价单').replace(/\s+/g, '')}（续）${q.projectName ? ' · ' + q.projectName : ''}`;
+          drawTextLine(contTitle, M, curY - 12, 10, true, mutedTxtRgb);
+          curY -= (contHeaderH + contHeaderGap);
+        }
+
+        // 4. 报价明细表头（每页重复）
+        if (pg.rows.length > 0) {
+          let cx = M;
+          for (let c = 0; c < colWidths.length; c++) {
+            const w = colWidths[c];
+            drawRectFill(cx, curY, w, thH, trR, trG, trB);
+            drawRectStroke(cx, curY, w, thH, 1);
+            drawCellLines([headers[c]], cx, curY, w, thH, 10, 14, 'center', true, 'middle', cellPadX, cellPadY);
+            cx += w;
+          }
+          curY -= thH;
+        }
+
+        // 5. 报价明细数据行
+        for (const row of pg.rows) {
+          let rx = M;
+          for (let c = 0; c < colWidths.length; c++) {
+            const w = colWidths[c];
+            if (row.isSub) drawRectFill(rx, curY, w, row.rowH, 0.973, 0.980, 0.988);
+            drawRectStroke(rx, curY, w, row.rowH, 1);
+            const fSize = row.isSub ? subFontSize : cellFontSize;
+            const lH = row.isSub ? subLineH : cellLineH;
+            const align = (row.isSub && c === 1) ? 'left' : 'center';
+            const padX = (row.isSub && c === 1) ? 10 : cellPadX;
+            const isBold = !!(row.boldCols && row.boldCols.has(c));
+            drawCellLines(row.wrapped[c], rx, curY, w, row.rowH, fSize, lH, align, isBold, 'middle', padX, row.isSub ? 3 : cellPadY, row.isSub ? subTxtRgb : null);
+            rx += w;
+          }
+          curY -= row.rowH;
+        }
+
+        // 6. 合计行
+        if (pg.drawSum) {
+          const span1W = colWidths[0] + colWidths[1];
+          const span2W = colWidths[2] + colWidths[3];
+          const span3W = colWidths[4] + colWidths[5];
+          const span4W = colWidths[6] + colWidths[7];
+          const sumSpans = [
+            { w: span1W, text: '合计小写' },
+            { w: span2W, text: `¥ ${total.toFixed(2)}` },
+            { w: span3W, text: '合计人民币金额（大写）' },
+            { w: span4W, text: toChineseMoney(total) }
+          ];
+          let sx = M;
+          for (const sp of sumSpans) {
+            drawRectStroke(sx, curY, sp.w, sumRowH, 1);
+            drawCellLines([sp.text], sx, curY, sp.w, sumRowH, 10, 14, 'center', true, 'middle', cellPadX, cellPadY);
+            sx += sp.w;
+          }
+          curY -= sumRowH;
+        }
+
+        // 7. 备注行
+        if (pg.drawRemark) {
+          drawRectStroke(M, curY, remarkSpanLeftW, remarkRowH, 1);
+          drawCellLines(['备注:'], M, curY, remarkSpanLeftW, remarkRowH, 10, 14, 'center', true, 'middle', cellPadX, cellPadY);
+          drawRectStroke(M + remarkSpanLeftW, curY, remarkSpanRightW, remarkRowH, 1);
+          drawCellLines(remarkLines, M + remarkSpanLeftW, curY, remarkSpanRightW, remarkRowH, cellFontSize, cellLineH, 'left', false, 'top', 8, 8);
+        }
+
+        // 页脚页码
+        const pageStr = `第 ${pIdx + 1} / ${totalPages} 页`;
+        const pageStrW = PdfFont.measureTextEm(pageStr) * 8.5;
+        drawTextLine(pageStr, PW - M - pageStrW, M + 4, 8.5, false, mutedTxtRgb);
+        if (q.projectName) {
+          drawTextLine(`${q.projectName}${q.date ? ' · ' + q.date : ''}`, M, M + 4, 8.5, false, mutedTxtRgb);
+        }
+
+        pageStreams.push(ops.join('\n'));
+      }
+
+      // 组装 PDF 1.4 文件并内嵌子集字体
+      const enc = new TextEncoder();
+      const parts = [];
+      let pos = 0;
+      const offs = [];
+      const put = x => { const u = typeof x === 'string' ? enc.encode(x) : x; parts.push(u); pos += u.length; };
+      const obj = (id, s) => { offs[id] = pos; put(`${id} 0 obj\n${s}\nendobj\n`); };
+      const putStream = async (id, dict, raw) => {
+        const z = await deflateBytes(raw), body = z || raw;
+        offs[id] = pos;
+        put(`${id} 0 obj\n<< /Length ${body.length}${z ? ' /Filter /FlateDecode' : ''}${dict ? ' ' + dict : ''} >>\nstream\n`);
+        put(body);
+        put('\nendstream\nendobj\n');
+      };
+
+      const d = new Date(), p2 = x => String(x).padStart(2, '0');
+      const gids = [...used.keys()].sort((a, b) => a - b);
+      const upem = PdfFont.unitsPerEm || 256, adv = PdfFont.advanceWidths;
+      const W = gids.map(g => `${g} [${adv ? Math.round((adv[g] || upem) * 1000 / upem) : 1000}]`).join(' ');
+      const asc = Math.round((PdfFont.ascent || upem * 0.88) * 1000 / upem);
+      const dsc = Math.round((PdfFont.descent || -upem * 0.12) * 1000 / upem);
+
+      const logoObjId = pdfLogo ? 10 : 0;
+      const firstPageObjId = pdfLogo ? 11 : 10;
+      const pageKids = [];
+      for (let i = 0; i < totalPages; i++) pageKids.push(`${firstPageObjId + i * 2} 0 R`);
+
+      put('%PDF-1.4\n');
+      put(new Uint8Array([0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a]));
+      obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+      obj(2, `<< /Type /Pages /Kids [${pageKids.join(' ')}] /Count ${totalPages} >>`);
+      obj(3, '<< /Type /Font /Subtype /Type0 /BaseFont /TileCalcCN /Encoding /Identity-H /DescendantFonts [6 0 R] /ToUnicode 9 0 R >>');
+      obj(4, '<< /Type /Outlines /Count 0 >>');
+      obj(5, `<< /Title ${pdfU16(q.filePrefix)} /Producer (EasyTile Quote PDF) /CreationDate (D:${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}) >>`);
+      obj(6, `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /TileCalcCN /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 7 0 R /DW 1000 /W [${W}] /CIDToGIDMap /Identity >>`);
+      obj(7, `<< /Type /FontDescriptor /FontName /TileCalcCN /Flags 4 /FontBBox [-200 ${dsc - 50} 1300 ${asc + 50}] /ItalicAngle 0 /Ascent ${asc} /Descent ${dsc} /CapHeight ${Math.round(asc * 0.8)} /StemV 80 /FontFile2 8 0 R >>`);
+      const ttf = PdfFont.buildSubsetTtf(new Set(gids));
+      await putStream(8, `/Length1 ${ttf.length}`, ttf);
+
+      const bf = [];
+      for (let i = 0; i < gids.length; i += 100) {
+        const chunk = gids.slice(i, i + 100);
+        bf.push(`${chunk.length} beginbfchar`);
+        for (const g of chunk) {
+          const cp = used.get(g) || 0x20;
+          const u16 = cp.toString(16).toUpperCase().padStart(4, '0');
+          bf.push(`<${g.toString(16).toUpperCase().padStart(4, '0')}> <${u16}>`);
+        }
+        bf.push('endbfchar');
+      }
+      const cmap = [
+        '/CIDInit /ProcSet findresource begin', '12 dict begin', 'begincmap',
+        '/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def',
+        '/CMapName /Adobe-Identity-UCS def', '/CMapType 2 def',
+        '1 begincodespacerange', '<0000> <FFFF>', 'endcodespacerange',
+        bf.join('\n'), 'endcmap', 'CMapName currentdict /CMap defineresource pop', 'end', 'end'
+      ].join('\n');
+      await putStream(9, '', enc.encode(cmap));
+
+      if (pdfLogo) {
+        offs[logoObjId] = pos;
+        put(`${logoObjId} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${pdfLogo.pw} /Height ${pdfLogo.ph} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pdfLogo.bytes.length} >>\nstream\n`);
+        put(pdfLogo.bytes);
+        put('\nendstream\nendobj\n');
+      }
+
+      for (let i = 0; i < totalPages; i++) {
+        const pageObjId = firstPageObjId + i * 2;
+        const contentObjId = pageObjId + 1;
+        const xobjRes = (i === 0 && pdfLogo) ? ` /XObject << /Im1 ${logoObjId} 0 R >>` : '';
+        obj(pageObjId, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f2(PW)} ${f2(PH)}] /Resources << /Font << /F1 3 0 R >>${xobjRes} >> /Contents ${contentObjId} 0 R >>`);
+        await putStream(contentObjId, '', enc.encode(pageStreams[i]));
+      }
+
+      const totalObjs = firstPageObjId + totalPages * 2;
+      const xref = pos;
+      let x = `xref\n0 ${totalObjs}\n0000000000 65535 f \n`;
+      for (let id = 1; id < totalObjs; id++) x += String(offs[id] || 0).padStart(10, '0') + ' 00000 n \n';
+      put(x + `trailer\n<< /Size ${totalObjs} /Root 1 0 R /Info 5 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+
+      const outB = new Uint8Array(pos);
+      let offset = 0;
+      for (const u of parts) { outB.set(u, offset); offset += u.length; }
+
+      const res = await triggerDownload(new Blob([outB], { type: 'application/pdf' }), `${q.filePrefix}.pdf`);
+      if (res && res.saved && !res.cancelled) {
+        DesktopHost.postToOpener({ type: 'tilecalc-quote-exported', format: 'PDF', count: rows.length, total: money(total) });
+      }
+    } catch (err) {
+      console.error(err);
+      alert('导出 PDF 失败：' + (err && err.message ? err.message : err));
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+
+  if (window.location.search.indexOf('embed=1') >= 0) {
+    document.body.classList.add('is-embed');
+  }
+  DesktopHost.bindWindowControls({
+    minBtn: $('btn-win-min'),
+    maxBtn: $('btn-win-max'),
+    closeBtn: $('btn-win-close')
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const pop = $('add-pop');
+    if (pop && pop.classList.contains('open')) {
+      pop.classList.remove('open');
+      return;
+    }
+    const act = document.activeElement;
+    if (act && (act.tagName === 'INPUT' || act.tagName === 'TEXTAREA') && !act.readOnly) return;
+    if (!document.body.classList.contains('is-embed')) {
+      e.preventDefault();
+      DesktopHost.closeSelf();
+    }
+  });
+
+  $('btn-export').addEventListener('click', exportXlsx);
+  $('btn-export-pdf').addEventListener('click', exportPdf);
+
+  // 数据来源：工作站子窗体/iframe 通信（优先）或 IndexedDB（独立打开）；等待 StorageDB 初始化后统一载入
+  let storageReady = false;
+  let pendingPostPayload = null;
+  DesktopHost.onOpenerMessage((msg) => {
+    if (msg && msg.type === 'tilecalc-quote-data') {
+      if (storageReady) loadData(msg.payload);
+      else pendingPostPayload = msg.payload;
+    }
+  });
+  (async () => {
+    await StorageDB.init();
+    storageReady = true;
+    await loadMerchantInfo();
+    try {
+      const s = StorageDB.getJSON(DATA_KEY, null);
+      if (s) await loadData(s);
+    } catch (e) { }
+    if (pendingPostPayload) {
+      const p = pendingPostPayload;
+      pendingPostPayload = null;
+      await loadData(p);
+    }
+    render();
+    DesktopHost.postToOpener({ type: 'tilecalc-quote-ready' });
+  })();
+
+  window.__quote = { toChineseMoney, get rows() { return allRows(); }, totalAmount, exportXlsx, exportPdf };
+})();
+</script>
+</body>
+</html>

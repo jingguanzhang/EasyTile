@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>操作指南与关于 — EasyTile</title>
+<link rel="icon" type="image/png" href="assets/images/app.png" />
+<link rel="stylesheet" href="assets/css/phosphor.css" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-app);
+    color: var(--text-main);
+    font: 400 var(--fs-sm)/1.6 var(--font-sans);
+    display: flex;
+    flex-direction: column;
+  }
+  body.in-iframe .h-titlebar { display: none; }
+
+  /* 顶部无边框标题栏 */
+  .h-titlebar {
+    height: 40px;
+    padding: 0 6px 0 14px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .h-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .h-brand img {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: block;
+  }
+  .h-brand-title {
+    font-size: var(--fs-md);
+    font-weight: 600;
+    color: var(--text-main);
+  }
+  .h-brand-ver {
+    font-size: var(--fs-2xs);
+    font-family: var(--font-mono);
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-border);
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  /* 主体两栏 */
+  .h-shell {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+  }
+  .h-nav {
+    width: 196px;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-default);
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .h-nav-btn {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font: 500 var(--fs-sm)/1 var(--font-sans);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+  }
+  .h-nav-btn .ph { font-size: 16px; color: var(--text-muted); }
+  .h-nav-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+  .h-nav-btn.is-active {
+    background: var(--primary-soft);
+    border-color: var(--primary-border);
+    color: var(--primary-text);
+    font-weight: 600;
+  }
+  .h-nav-btn.is-active .ph { color: var(--primary); }
+  .h-nav-foot {
+    margin-top: auto;
+    padding: 10px 8px 2px;
+    border-top: 1px solid var(--border-light);
+    font-size: var(--fs-2xs);
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+
+  /* 右侧内容区 */
+  .h-main {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 22px 28px 32px;
+  }
+  .h-panel { display: none; max-width: 760px; margin: 0 auto; }
+  .h-panel.is-active { display: block; }
+  .h-h1 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .h-lead {
+    margin: 0 0 18px;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  /* 卡片与步骤 */
+  .h-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .h-card-title {
+    margin: 0 0 10px;
+    font-size: var(--fs-md);
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .h-card-title .ph { color: var(--primary); font-size: 16px; }
+
+  .h-steps { display: flex; flex-direction: column; gap: 10px; }
+  .h-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 13px 16px;
+  }
+  .h-step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-text);
+    font: 700 12px/1 var(--font-mono);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .h-step-body h3 { margin: 0 0 3px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-main); }
+  .h-step-body p { margin: 0; font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.65; }
+
+  .h-list {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .h-list b { color: var(--text-main); }
+  .h-code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: var(--radius-xs);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    color: var(--primary-text);
+  }
+
+  /* 快捷键表格 */
+  .h-kbd-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .h-kbd-list { display: flex; flex-direction: column; gap: 7px; }
+  .h-kbd-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border-light);
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+  }
+  .h-kbd-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .h-kbd-keys { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  kbd {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 6px;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: var(--radius-xs);
+    background: var(--bg-subtle);
+    color: var(--text-main);
+    font: 600 11px/17px var(--font-mono);
+    text-align: center;
+  }
+
+  /* 关于页面 */
+  .h-about-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    background: var(--bg-panel);
+    border: 1px solid var(--primary-border);
+    border-radius: var(--radius-xl);
+    padding: 24px 22px 22px;
+    margin-bottom: 14px;
+  }
+  .h-about-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 15px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 6px 18px rgba(52, 99, 216, 0.22);
+  }
+  .h-about-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .h-about-meta h2 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--text-main); }
+  .h-about-meta p { margin: 0 auto; max-width: 520px; font-size: var(--fs-xs); color: var(--text-secondary); }
+  .h-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
+  .h-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+  }
+  .h-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+    font-size: var(--fs-xs);
+  }
+  .h-kv { display: flex; flex-direction: column; gap: 2px; }
+  .h-kv span { color: var(--text-light); font-size: var(--fs-2xs); }
+  .h-kv b { color: var(--text-main); font-weight: 600; }
+
+  @media (max-width: 680px) {
+    .h-nav { width: 148px; }
+    .h-kbd-grid, .h-kv-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <header class="h-titlebar" data-host-drag>
+    <div class="h-brand">
+      <img src="assets/images/app.png" alt="EasyTile" />
+      <span class="h-brand-title">EasyTile 操作指南与关于</span>
+      <span class="h-brand-ver">v1.0.0</span>
+    </div>
+    <div class="win-controls" data-host-no-drag>
+      <button type="button" class="win-btn" data-host-action="minimize" title="最小化" aria-label="最小化"><i class="ph ph-minus"></i></button>
+      <button type="button" class="win-btn" data-host-action="toggleMaximize" title="最大化" aria-label="最大化"><i class="ph ph-square"></i></button>
+      <button type="button" class="win-btn win-btn-close" data-host-action="close" title="关闭 (Esc)" aria-label="关闭"><i class="ph ph-x"></i></button>
+    </div>
+  </header>
+
+  <div class="h-shell">
+    <nav class="h-nav" aria-label="帮助目录">
+      <button type="button" class="h-nav-btn is-active" data-tab="start">
+        <i class="ph ph-rocket-launch"></i><span>快速上手</span>
+      </button>
+      <button type="button" class="h-nav-btn" data-tab="features">
+        <i class="ph ph-squares-four"></i><span>核心功能</span>
+      </button>
+      <button type="button" class="h-nav-btn" data-tab="shortcuts">
+        <i class="ph ph-keyboard"></i><span>快捷键速查</span>
+      </button>
+      <button type="button" class="h-nav-btn" data-tab="about">
+        <i class="ph ph-info"></i><span>关于 EasyTile</span>
+      </button>
+      <div class="h-nav-foot">
+        按 <kbd>F1</kbd> 或 <kbd>?</kbd> 随时唤出<br />
+        按 <kbd>Esc</kbd> 关闭窗口
+      </div>
+    </nav>
+
+    <main class="h-main">
+      <!-- 1. 快速上手 -->
+      <section class="h-panel is-active" data-panel="start">
+        <h1 class="h-h1">快速上手</h1>
+        <p class="h-lead">5 步完成从户型建图、精准排砖到施工图与报价单输出。</p>
+        <div class="h-steps">
+          <div class="h-step">
+            <span class="h-step-num">1</span>
+            <div class="h-step-body">
+              <h3>创建或导入户型</h3>
+              <p>按 <kbd>W</kbd> 直接画墙（绘制时直接输入数字回车即可定长），墙体闭合后自动识别房间；也可通过「工程 → 识图建图」上传户型图自动提取墙体、门窗与房间名，或导入参考底图描图。</p>
+            </div>
+          </div>
+          <div class="h-step">
+            <span class="h-step-num">2</span>
+            <div class="h-step-body">
+              <h3>放置门窗与校准尺寸</h3>
+              <p>按 <kbd>D</kbd> 放置门洞、<kbd>F</kbd> 放置窗洞，选中门可配置<b>通铺 / 过门石 / 压边条</b>衔接方式及<b>入户门标记</b>。双击任意墙体尺寸标注即可精准改长或标定全图比例。</p>
+            </div>
+          </div>
+          <div class="h-step">
+            <span class="h-step-num">3</span>
+            <div class="h-step-body">
+              <h3>配置地面砖材与起铺点</h3>
+              <p>点击任意房间，在左侧切换<b>瓷砖 / 木地板</b>、选择或新增自定义花色（支持预设默认尺寸与编号规则）、选择铺法（正铺 / 工字 / 369 / 45°斜铺）。点击<b>AI 全屋优排</b>可一键优化全屋起铺点以减少小角裁切。</p>
+            </div>
+          </div>
+          <div class="h-step">
+            <span class="h-step-num">4</span>
+            <div class="h-step-body">
+              <h3>切换立面设计墙砖与踢脚线</h3>
+              <p>在顶部切换「立面」或直接点击右侧 <b>3D 轴测预览</b> 中的任意墙面进入立面模式，配置墙砖铺贴范围（离地 / 离顶）、起铺点与瓷砖/木质踢脚线，自动扣减门窗洞口面积。</p>
+            </div>
+          </div>
+          <div class="h-step">
+            <span class="h-step-num">5</span>
+            <div class="h-step-body">
+              <h3>生成报价单与导出施工图纸</h3>
+              <p>右侧「用量汇总」实时计算主材采购量、美缝、辅料、过门石与压边条；点击<b>生成报价</b>导出 Excel / PDF 报价单，或在顶部「导出」菜单输出高清彩图 JPG、A4 施工 PDF、AutoCAD DXF / DWG 及 Excel 明细表。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 核心功能 -->
+      <section class="h-panel" data-panel="features">
+        <h1 class="h-h1">核心功能详解</h1>
+        <p class="h-lead">了解常用进阶技巧，提升出图与算量效率。</p>
+
+        <div class="h-card">
+          <h2 class="h-card-title"><i class="ph ph-wall"></i>户型绘制与多楼层管理</h2>
+          <ul class="h-list">
+            <li><b>精确画墙与改长：</b>画墙过程中直接键入毫米数值按 <kbd>Enter</kbd> 定长；双击墙体标注线可选择单侧或两端对称伸缩，斜墙支持一键摆直。</li>
+            <li><b>多楼层与透显底层：</b>点击画布左下角楼层图标可开启多层管理，支持新建/复制楼层、透显下层墙体轮廓对齐上下层结构，以及一键左右/上下镜像户型。</li>
+            <li><b>门洞过门衔接：</b>相邻空间自动判断砖砖/砖木/木木场景，支持<b>通铺</b>（跨门洞共用起铺点不断缝）、<b>过门石</b>、<b>压边条</b>（默认 20mm 偏移且按边缘对齐）；最外墙门可开启<b>入户门标记</b>。</li>
+          </ul>
+        </div>
+
+        <div class="h-card">
+          <h2 class="h-card-title"><i class="ph ph-swatches"></i>花色库、砖号与算量口径</h2>
+          <ul class="h-list">
+            <li><b>自定义花色库：</b>上传贴图经裁剪后保存至本地，可为花色预设<b>默认尺寸、材料类型、编号前缀与后缀</b>；选中花色时自动带入默认值，仍可在左侧面板单独覆盖。</li>
+            <li><b>统一砖号规则：</b>编号格式为 <span class="h-code">前缀 + 规格号 + 分隔符 + 序号</span>（如 <span class="h-code">CT1-1</span>），可在「砖材 → 规格编号 → 设置图标」中修改，地砖/墙砖跨房间自动顺延。</li>
+            <li><b>精准算量：</b>支持裁切余料复用统计，右侧用量表与报价单统一按含损耗采购量核算，涵盖主材、踢脚线、过门石、压边条、美缝剂及粘结/防潮垫辅料。</li>
+          </ul>
+        </div>
+
+        <div class="h-card">
+          <h2 class="h-card-title"><i class="ph ph-blueprint"></i>视图控制与图纸导出</h2>
+          <ul class="h-list">
+            <li><b>底部快捷显示开关：</b>一键控制铺贴预览、砖号与裁切尺寸、门扇显隐、空间标签、起铺点标靶、尺寸标注、指北针、背景网格与网格吸附，<b>地面与立面模式同步生效</b>。</li>
+            <li><b>高清彩图导出：</b>平面模式下可导出全屋或单空间铺贴彩图（带四周双层标注与底部图例）；<b>立面模式下</b>自动导出当前空间的展开立面或单墙面高清彩图。</li>
+            <li><b>CAD / PDF 施工图与自定义图框：</b>支持导出纯离线生成的 DXF / DWG / PDF 施工图（含总平、分空间排砖、墙面立面与末页材料总表），可通过「导出 → 图框设置」自由编辑企业图签。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 3. 快捷键速查 -->
+      <section class="h-panel" data-panel="shortcuts">
+        <h1 class="h-h1">快捷键速查表</h1>
+        <p class="h-lead">熟练使用快捷键可大幅提升画图与排砖速度。</p>
+
+        <div class="h-kbd-grid">
+          <div class="h-card">
+            <h2 class="h-card-title"><i class="ph ph-cursor"></i>工具与绘制</h2>
+            <div class="h-kbd-list">
+              <div class="h-kbd-row"><span>选择与编辑工具</span><span class="h-kbd-keys"><kbd>V</kbd></span></div>
+              <div class="h-kbd-row"><span>平移画布工具</span><span class="h-kbd-keys"><kbd>H</kbd></span></div>
+              <div class="h-kbd-row"><span>按住临时拖动画布</span><span class="h-kbd-keys"><kbd>Space</kbd></span></div>
+              <div class="h-kbd-row"><span>绘制墙体（支持数字定长）</span><span class="h-kbd-keys"><kbd>W</kbd></span></div>
+              <div class="h-kbd-row"><span>放置门洞 / 窗洞</span><span class="h-kbd-keys"><kbd>D</kbd> / <kbd>F</kbd></span></div>
+              <div class="h-kbd-row"><span>拾取起铺点</span><span class="h-kbd-keys"><kbd>O</kbd></span></div>
+              <div class="h-kbd-row"><span>两点测距</span><span class="h-kbd-keys"><kbd>M</kbd></span></div>
+            </div>
+          </div>
+
+          <div class="h-card">
+            <h2 class="h-card-title"><i class="ph ph-magnifying-glass"></i>视图与缩放</h2>
+            <div class="h-kbd-list">
+              <div class="h-kbd-row"><span>放大画布（最高 800%）</span><span class="h-kbd-keys"><kbd>+</kbd> / <kbd>=</kbd></span></div>
+              <div class="h-kbd-row"><span>缩小画布</span><span class="h-kbd-keys"><kbd>-</kbd></span></div>
+              <div class="h-kbd-row"><span>适应视图 / 居中复位</span><span class="h-kbd-keys"><kbd>0</kbd> / <kbd>Home</kbd></span></div>
+              <div class="h-kbd-row"><span>以光标为中心缩放</span><span class="h-kbd-keys"><kbd>滚轮</kbd></span></div>
+              <div class="h-kbd-row"><span>立面模式切换墙面</span><span class="h-kbd-keys"><kbd>←</kbd> / <kbd>→</kbd></span></div>
+              <div class="h-kbd-row"><span>打开操作指南</span><span class="h-kbd-keys"><kbd>F1</kbd> / <kbd>?</kbd></span></div>
+            </div>
+          </div>
+
+          <div class="h-card">
+            <h2 class="h-card-title"><i class="ph ph-floppy-disk"></i>编辑与工程文件</h2>
+            <div class="h-kbd-list">
+              <div class="h-kbd-row"><span>保存工程文件 (.tcalc)</span><span class="h-kbd-keys"><kbd>Ctrl</kbd>+<kbd>S</kbd></span></div>
+              <div class="h-kbd-row"><span>打开本地工程</span><span class="h-kbd-keys"><kbd>Ctrl</kbd>+<kbd>O</kbd></span></div>
+              <div class="h-kbd-row"><span>撤销上一步操作</span><span class="h-kbd-keys"><kbd>Ctrl</kbd>+<kbd>Z</kbd></span></div>
+              <div class="h-kbd-row"><span>重做操作</span><span class="h-kbd-keys"><kbd>Ctrl</kbd>+<kbd>Y</kbd></span></div>
+              <div class="h-kbd-row"><span>删除选中墙体 / 门窗 / 空间</span><span class="h-kbd-keys"><kbd>Delete</kbd></span></div>
+              <div class="h-kbd-row"><span>取消当前操作 / 关闭弹窗</span><span class="h-kbd-keys"><kbd>Esc</kbd></span></div>
+            </div>
+          </div>
+
+          <div class="h-card">
+            <h2 class="h-card-title"><i class="ph ph-house-line"></i>欢迎页快捷入口</h2>
+            <div class="h-kbd-list">
+              <div class="h-kbd-row"><span>创建空白工程</span><span class="h-kbd-keys"><kbd>N</kbd></span></div>
+              <div class="h-kbd-row"><span>识图 / 底图建图</span><span class="h-kbd-keys"><kbd>I</kbd></span></div>
+              <div class="h-kbd-row"><span>打开示例工程</span><span class="h-kbd-keys"><kbd>E</kbd></span></div>
+              <div class="h-kbd-row"><span>浏览本地 .tcalc 文件</span><span class="h-kbd-keys"><kbd>O</kbd></span></div>
+              <div class="h-kbd-row"><span>恢复上次草稿</span><span class="h-kbd-keys"><kbd>R</kbd></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 关于 -->
+      <section class="h-panel" data-panel="about">
+        <h1 class="h-h1">关于 EasyTile</h1>
+        <p class="h-lead">专为建材门店、铺贴师傅与室内设计师打造的一体化排砖算量工作站。</p>
+
+        <div class="h-about-hero">
+          <div class="h-about-logo">
+            <img src="assets/images/app.png" alt="EasyTile" />
+          </div>
+          <div class="h-about-meta">
+            <h2>EasyTile 易贴</h2>
+            <p>集户型绘制/识图、地面与立面精准排砖、AI 起铺优化、材料算量报价与 CAD 施工图导出于一体。</p>
+          </div>
+        </div>
+
+        <div class="h-card">
+          <h2 class="h-card-title"><i class="ph ph-cpu"></i>软件信息</h2>
+          <div class="h-kv-grid">
+            <div class="h-kv"><span>软件名称</span><b>EasyTile Workstation</b></div>
+            <div class="h-kv"><span>当前版本</span><b style="font-family:var(--font-mono)">v1.0.0</b></div>
+            <div class="h-kv"><span>工程文件格式</span><b style="font-family:var(--font-mono)">.tcalc</b></div>
+            <div class="h-kv"><span>版权声明</span><b>Copyright © EasyTile</b></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/js/desktop-host.js"></script>
+  <script>
+    (function () {
+      if (window.self !== window.top) {
+        document.body.classList.add('in-iframe');
+      }
+      if (typeof DesktopHost !== 'undefined' && DesktopHost.bindWindowControls) {
+        DesktopHost.bindWindowControls();
+      }
+      const tabs = document.querySelectorAll('.h-nav-btn');
+      const panels = document.querySelectorAll('.h-panel');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.tab;
+          tabs.forEach(b => b.classList.toggle('is-active', b === btn));
+          panels.forEach(p => p.classList.toggle('is-active', p.dataset.panel === key));
+        });
+      });
+      window.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (window.self !== window.top) {
+          window.parent.postMessage({ type: 'easytile:close-help' }, '*');
+        } else if (typeof DesktopHost !== 'undefined' && DesktopHost.closeSelf) {
+          DesktopHost.closeSelf();
+        } else {
+          window.close();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

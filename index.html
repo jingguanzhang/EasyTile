@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyTile</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/app.ico">
+    <link rel="icon" type="image/png" href="assets/images/app.png">
+    <script src="assets/ort.webgpu.min.js"></script>
+    <link rel="stylesheet" href="assets/css/phosphor.css">
+    <link rel="stylesheet" href="assets/vendor/cropperjs/cropper.min.css">
+    <link rel="stylesheet" href="assets/css/tokens.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden">
+
+    <!-- 1. 顶部主导航与 Ribbon 工具栏 -->
+    <nav class="ribbon-bar" data-host-drag>
+        <!-- 左侧：标题区 -->
+        <div class="ribbon-left">
+            <div id="btn-titlebar-brand" class="titlebar-brand webview-no-drag" data-host-no-drag role="button" tabindex="0" title="打开欢迎页">
+                <span class="titlebar-logo"><img src="assets/images/app.png" alt="EasyTile"></span>
+                <span class="titlebar-title">EasyTile</span>
+            </div>
+        </div>
+
+        <!-- 中间：主工具条 -->
+        <div id="ribbon-center" class="ribbon-center webview-no-drag" data-host-no-drag>
+            <button id="btn-ribbon-tools-toggle" type="button" class="ribbon-btn ribbon-tools-toggle" title="展开/收起工具栏" aria-haspopup="true" aria-expanded="false">
+                <span class="ribbon-icon-wrap">
+                    <i class="ph ph-squares-four"></i>
+                    <i class="ph-fill ph-notches ribbon-caret"></i>
+                </span>
+                <span>工具</span>
+            </button>
+            <div id="ribbon-center-panel" class="ribbon-center-panel">
+            <!-- 工程管理组 -->
+            <div class="ribbon-group">
+                <div class="ribbon-dropdown">
+                    <button id="btn-scheme-menu" type="button" class="ribbon-btn ribbon-dropdown-trigger" title="工程管理" aria-haspopup="true">
+                        <span class="ribbon-icon-wrap">
+                            <i class="ph ph-folder"></i>
+                            <i class="ph-fill ph-notches ribbon-caret"></i>
+                        </span>
+                        <span>工程</span>
+                    </button>
+                    <div class="ribbon-dropdown-menu" role="menu">
+                        <button id="btn-new-project" type="button" class="ribbon-menu-item" role="menuitem" title="新建空白工程">
+                            <i class="ph ph-file-plus"></i>
+                            <span>新建工程</span>
+                        </button>
+                        <button id="btn-open-json" type="button" class="ribbon-menu-item" role="menuitem" title="打开本地工程文件 (.tcalc / .json, Ctrl+O)">
+                            <i class="ph ph-folder-open"></i>
+                            <span>打开工程... </span>
+                        </button>
+                        <button id="btn-open-preset" type="button" class="ribbon-menu-item" role="menuitem" title="打开示例户型工程">
+                            <i class="ph ph-house-line"></i>
+                            <span>打开示例</span>
+                        </button>
+                        <div class="ribbon-menu-sep"></div>
+                        <button id="btn-open-import" type="button" class="ribbon-menu-item" role="menuitem" title="上传户型图自动识别墙门与空间">
+                            <i class="ph ph-scan"></i>
+                            <span>识图建图...</span>
+                        </button>
+                        <button id="btn-import-underlay" type="button" class="ribbon-menu-item" role="menuitem" title="导入参考底图用于描图画墙">
+                            <i class="ph ph-image"></i>
+                            <span>导入底图...</span>
+                        </button>
+                    </div>
+                </div>
+                <input id="file-upload-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" class="hidden" />
+                <input id="underlay-upload-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" class="hidden" />
+                <input id="json-file-input" type="file" accept=".tcalc,.json,application/json" class="hidden">
+
+                <button id="btn-save-json" type="button" class="ribbon-btn" title="保存工程文件 (.tcalc, Ctrl+S)">
+                    <i class="ph ph-floppy-disk"></i>
+                    <span>保存</span>
+                </button>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <!-- 编辑与清空组 -->
+            <div class="ribbon-group">
+                <button id="btn-undo" type="button" class="ribbon-btn" title="撤销 (Ctrl+Z)">
+                    <i class="ph ph-arrow-u-up-left"></i>
+                    <span>撤销</span>
+                </button>
+
+                <button id="btn-redo" type="button" class="ribbon-btn" title="重做 (Ctrl+Y)">
+                    <i class="ph ph-arrow-u-up-right"></i>
+                    <span>重做</span>
+                </button>
+
+                <button id="btn-clear" type="button" class="ribbon-btn ribbon-btn-danger" title="清空当前视图">
+                    <i class="ph ph-trash"></i>
+                    <span>清空</span>
+                </button>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <!-- 通用浏览与测距组 -->
+            <div class="ribbon-group">
+                <button data-tool="select" type="button" class="ribbon-btn tool-btn active" title="选择与编辑 (V)">
+                    <i class="ph ph-cursor"></i>
+                    <span>选择</span>
+                </button>
+
+                <button data-tool="pan" type="button" class="ribbon-btn tool-btn" title="拖动画布 (H)">
+                    <i class="ph ph-hand"></i>
+                    <span>平移</span>
+                </button>
+
+                <button data-tool="measure" type="button" class="ribbon-btn tool-btn" title="两点测距 (M)">
+                    <i class="ph ph-ruler"></i>
+                    <span>测距</span>
+                </button>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <!-- 户型绘制与起铺点组 -->
+            <div class="ribbon-group">
+                <button data-tool="wall" type="button" class="ribbon-btn tool-btn is-floor-tool" title="绘制墙体 (W)">
+                    <i class="ph ph-wall"></i>
+                    <span>画墙</span>
+                </button>
+
+                <button data-tool="door" type="button" class="ribbon-btn tool-btn is-floor-tool" title="放置门洞 (D)">
+                    <i class="ph ph-door"></i>
+                    <span>加门</span>
+                </button>
+
+                <button data-tool="window" type="button" class="ribbon-btn tool-btn is-floor-tool" title="放置窗洞 (F)">
+                    <i class="ph ph-grid-four"></i>
+                    <span>加窗</span>
+                </button>
+
+                <button data-tool="origin" type="button" class="ribbon-btn tool-btn" title="设置起铺点 (O)">
+                    <i class="ph ph-crosshair"></i>
+                    <span>起铺点</span>
+                </button>
+            </div>
+            </div>
+        </div>
+
+        <!-- 右侧：导出、帮助与窗口控制 -->
+        <div class="ribbon-right webview-no-drag" data-host-no-drag>
+            <div class="ribbon-group">
+                <div class="ribbon-dropdown ribbon-dropdown-right">
+                    <button id="btn-export-menu" type="button" class="ribbon-btn ribbon-dropdown-trigger" title="导出图纸与算量表" aria-haspopup="true">
+                        <span class="ribbon-icon-wrap">
+                            <i class="ph ph-download-simple"></i>
+                            <i class="ph-fill ph-notches ribbon-caret"></i>
+                        </span>
+                        <span>导出</span>
+                    </button>
+                    <div class="ribbon-dropdown-menu" role="menu">
+                        <div class="ribbon-menu-group-label" role="presentation">图纸</div>
+                        <button id="btn-export-a4" type="button" class="ribbon-menu-item" role="menuitem" title="导出高清铺贴彩图 (.jpg)，可选择空间与显示选项">
+                            <i class="ph ph-image"></i>
+                            <span>导出图片</span>
+                        </button>
+                        <button id="btn-export-pdf" type="button" class="ribbon-menu-item" role="menuitem" title="导出 A4 施工图纸 (.pdf)">
+                            <i class="ph ph-file-pdf"></i>
+                            <span>导出 PDF</span>
+                        </button>
+                        <div class="ribbon-menu-sep"></div>
+                        <div class="ribbon-menu-group-label" role="presentation">CAD</div>
+                        <button id="btn-export-dxf" type="button" class="ribbon-menu-item" role="menuitem" title="导出 CAD 施工图 (.dxf)">
+                            <i class="ph ph-blueprint"></i>
+                            <span>导出 DXF</span>
+                        </button>
+                        <button id="btn-export-dwg" type="button" class="ribbon-menu-item" role="menuitem" title="导出 AutoCAD 图纸 (.dwg)">
+                            <i class="ph ph-file-arrow-down"></i>
+                            <span>导出 DWG</span>
+                        </button>
+                        <div class="ribbon-menu-sep"></div>
+                        <div class="ribbon-menu-group-label" role="presentation">算量</div>
+                        <button id="btn-export-xlsx-menu" type="button" class="ribbon-menu-item" role="menuitem" title="导出材料明细表 (.xlsx，与 CAD 末页总表一致)">
+                            <i class="ph ph-microsoft-excel-logo"></i>
+                            <span>导出Excel</span>
+                        </button>
+                        <div class="ribbon-menu-sep"></div>
+                        <button id="btn-frame-editor" type="button" class="ribbon-menu-item" role="menuitem" title="编辑导出图框与图签栏">
+                            <i class="ph ph-frame-corners"></i>
+                            <span>图框设置...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btn-open-help" type="button" class="ribbon-btn" title="操作指南与关于 (F1)">
+                    <i class="ph ph-question"></i>
+                    <span>帮助</span>
+                </button>
+
+                <button id="btn-contact-author" type="button" class="ribbon-btn hidden" title="扫码联系作者">
+                    <i class="ph ph-qr-code"></i>
+                    <span>联系作者</span>
+                </button>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <!-- 窗口控制按钮（桌面宿主下由 HostBridge 自动接管） -->
+            <div class="win-controls" data-host-no-drag>
+                <button id="btn-win-min" type="button" class="win-btn" data-host-action="minimize" title="最小化" aria-label="最小化">
+                    <i class="ph ph-minus"></i>
+                </button>
+                <button id="btn-win-max" type="button" class="win-btn" data-host-action="toggleMaximize" title="最大化" aria-label="最大化">
+                    <i class="ph ph-square"></i>
+                </button>
+                <button id="btn-win-close" type="button" class="win-btn win-btn-close" data-host-action="close" title="关闭" aria-label="关闭">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. 主体工作区 -->
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- 3.1 左侧属性配置栏 -->
+        <aside class="workstation-sidebar-left">
+            <div class="sidebar-scroll">
+
+                <!-- 上下文卡片：选中墙体时显示 -->
+                <div id="inspector-wall-panel" class="hidden panel-card panel-card-active space-y-2">
+                    <div class="section-header">
+                        <span class="section-title">
+                            <span>墙体属性</span>
+                        </span>
+                        <button id="btn-delete-wall" type="button" class="ui-btn ui-btn-sm ui-btn-icon ui-btn-danger" title="删除墙体 (Delete)" aria-label="删除墙体">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                    <div id="wall-single-controls" class="space-y-1.5">
+                        <button id="btn-straighten-wall" type="button" class="hidden ui-btn ui-btn-sm w-full">
+                            摆直斜墙
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">墙体厚度</label>
+                        <div class="combo-input" data-unit="mm">
+                            <input id="wall-thickness-input" type="number" min="40" max="800" step="10" value="240" class="ui-input font-mono w-full text-center" title="墙体厚度">
+                            <button id="wall-thickness-dropdown-btn" type="button" class="combo-input-arrow" title="常用墙厚预设" aria-haspopup="listbox" aria-expanded="false">
+                                <i class="ph ph-caret-down text-slate-500 text-xs pointer-events-none"></i>
+                            </button>
+                            <div id="wall-thickness-menu" class="combo-dropdown-menu hidden" role="listbox">
+                                <div class="combo-dropdown-header">常用墙厚</div>
+                                <!-- 常用墙厚由 presets.json draw.wallThicknessOptions 生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 上下文卡片：选中门窗时显示 -->
+                <div id="inspector-opening-panel" class="hidden panel-card panel-card-active space-y-2">
+                    <div class="section-header">
+                        <span id="opening-type-title" class="section-title">
+                            <span>门属性</span>
+                        </span>
+                        <button id="btn-delete-opening" type="button" class="ui-btn ui-btn-sm ui-btn-icon ui-btn-danger" title="删除门窗 (Delete)" aria-label="删除门窗">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div>
+                            <label class="field-label">洞口宽</label>
+                            <div class="input-unit" data-unit="mm">
+                                <input type="number" id="opening-width-input" min="300" max="4000" step="50" class="ui-input font-mono w-full text-center" title="洞口宽度">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="field-label">洞口高</label>
+                            <div class="input-unit" data-unit="mm">
+                                <input type="number" id="opening-height-input" min="200" max="6000" step="10" class="ui-input font-mono w-full text-center" title="洞口高度">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="opening-sill-block" class="form-row">
+                        <label class="form-label">窗台高</label>
+                        <div class="input-unit flex-1" data-unit="mm">
+                            <input type="number" id="opening-sill-input" min="0" max="5000" step="10" class="ui-input font-mono w-full text-center" title="窗台离地高度（落地窗填 0）">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div>
+                            <label class="field-label">距墙起点</label>
+                            <div class="input-unit" data-unit="mm">
+                                <input type="number" id="opening-dist1-input" min="0" max="20000" step="10" class="ui-input font-mono w-full text-center" title="距墙体起点净距">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="field-label">距墙终点</label>
+                            <div class="input-unit" data-unit="mm">
+                                <input type="number" id="opening-dist2-input" min="0" max="20000" step="10" class="ui-input font-mono w-full text-center" title="距墙体终点净距">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="door-direction-block" class="space-y-1.5">
+                        <label class="field-label">开启方向</label>
+                        <div class="grid grid-cols-4 gap-1" id="door-direction-grid"></div>
+                        <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+                            <button id="btn-flip-opening" type="button" class="ui-btn ui-btn-sm"><i class="ph ph-flip-vertical text-[12px]"></i><span>翻转内外</span></button>
+                            <button id="btn-swap-hinge" type="button" class="ui-btn ui-btn-sm"><i class="ph ph-flip-horizontal text-[12px]"></i><span>左右换向</span></button>
+                        </div>
+                        <div id="door-entry-mark-row" class="hidden form-row pt-1.5 mt-1 border-t border-slate-100">
+                            <label for="chk-door-entry-mark" class="form-label cursor-pointer whitespace-nowrap">入户门标记</label>
+                            <input type="checkbox" id="chk-door-entry-mark" class="accent-blue-600">
+                        </div>
+                    </div>
+
+                    <!-- 门洞衔接设置（仅门显示） -->
+                    <div id="door-paving-settings" class="space-y-1.5">
+                        <div class="panel-sub-sep"></div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="panel-sub-title shrink-0">门洞衔接</span>
+                            <span id="door-adj-badge" class="ui-badge truncate max-w-[150px]">自动识别</span>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">衔接方式</label>
+                            <select id="door-joint-select" class="ui-select flex-1"></select>
+                        </div>
+                        <div id="door-threshold-style-row" class="panel-card-subtle flex items-center gap-2.5">
+                            <div id="door-threshold-swatch-box" class="swatch-box" title="选择过门石花色">
+                                <canvas id="door-threshold-swatch" width="80" height="60" class="w-full h-full block"></canvas>
+                                <span id="door-threshold-swatch-label" class="swatch-caption">中国黑石材</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <button id="btn-door-threshold-style" type="button" class="ui-btn ui-btn-sm w-full px-1.5">
+                                    <i class="ph ph-swatches text-[12px]"></i><span>过门石花色</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="door-threshold-price-row" class="form-row">
+                            <label class="form-label" title="单樘门过门石单价">石材单价</label>
+                            <div class="input-unit flex-1" data-unit="元/块">
+                                <input type="number" id="door-threshold-price-input" data-no-unit min="0" max="99999" step="10" value="120" class="ui-input font-mono w-full text-center" title="过门石单价 (元/块)">
+                            </div>
+                        </div>
+                        <div id="door-strip-price-row" class="form-row">
+                            <label class="form-label" title="门洞压边条按米计价">压条单价</label>
+                            <div class="input-unit flex-1" data-unit="元/m">
+                                <input type="number" id="door-strip-price-input" data-no-unit min="0" max="99999" step="5" value="35" class="ui-input font-mono w-full text-center" title="压边条单价 (元/m)">
+                            </div>
+                        </div>
+                        <div id="door-occupy-row" class="form-row">
+                            <label class="form-label">占框空间</label>
+                            <select id="door-occupy-select" class="ui-select flex-1"></select>
+                        </div>
+                        <div id="door-offset-row" class="form-row">
+                            <label class="form-label" title="接缝从另一侧门框边向占框侧回退的距离；0 = 贴齐门框边">接缝偏移</label>
+                            <div class="input-unit flex-1" data-unit="mm">
+                                <input type="number" id="door-offset-input" min="0" max="400" step="5" value="0" class="ui-input font-mono w-full text-center" title="接缝回退距离">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卡片 1：工程（地面 / 立面共用） -->
+                <div class="panel-card space-y-2" data-card="project">
+                    <div class="section-header">
+                        <span class="section-title">工程</span>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">工程名称</label>
+                        <input id="project-name-input" type="text" value="" class="ui-input flex-1">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" title="客户 / 业主姓名，同步写入图签与算量明细">客户名称</label>
+                        <input id="client-name-input" type="text" placeholder="输入客户 / 业主名称" class="ui-input flex-1">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" title="全工程长度显示与输入单位">单位</label>
+                        <div class="seg-radio flex-1">
+                            <label><input type="radio" name="unit" value="m"><span>m</span></label>
+                            <label><input type="radio" name="unit" value="cm"><span>cm</span></label>
+                            <label><input type="radio" name="unit" value="mm" checked><span>mm</span></label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label id="floor-height-label" class="form-label" title="当前图纸层高；空间未设吊顶高度时默认取层高">层高</label>
+                        <div class="input-unit flex-1" data-unit="mm">
+                            <input id="floor-height-input" type="number" min="1500" max="10000" step="10" value="2800" class="ui-input font-mono w-full text-center" title="当前层高">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卡片 2：空间（地面 / 立面共用；底部瓷砖/木地板切换仅地面显示） -->
+                <div class="panel-card space-y-2" data-card="room">
+                    <div class="section-header">
+                        <span class="section-title">空间</span>
+                        <select id="room-selector" class="ui-select ui-select-sm room-selector max-w-[148px] cursor-pointer"></select>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">空间命名</label>
+                        <input id="room-name-input" type="text" class="ui-input flex-1" placeholder="输入空间名称">
+                    </div>
+
+                    <div id="room-name-presets" class="flex flex-wrap gap-1">
+                        <!-- 空间命名快捷标签由 presets.json roomNames 生成 -->
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" title="空间吊顶高度；留空则取工程层高">吊顶高度</label>
+                        <div class="input-unit flex-1" data-unit="mm">
+                            <input id="room-ceiling-input" type="number" min="1500" max="10000" step="10" placeholder="同层高 2800" class="ui-input font-mono w-full text-center" title="吊顶高度">
+                        </div>
+                    </div>
+
+                    <!-- 材料类型切换（仅地面） -->
+                    <div class="grid grid-cols-2 gap-1.5 floor-only">
+                        <button id="btn-mat-tile" type="button" class="mat-card-btn active">
+                            <i class="ph ph-squares-four text-2xl mb-1"></i>
+                            <span class="text-[11px]">瓷砖</span>
+                        </button>
+                        <button id="btn-mat-wood" type="button" class="mat-card-btn">
+                            <i class="ph ph-rows text-2xl mb-1"></i>
+                            <span class="text-[11px]">木地板</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 卡片 3（地面）：砖材 -->
+                <div class="panel-card space-y-2 floor-only" data-card="floor-spec">
+                    <div class="section-header">
+                        <span id="param-section-title" class="section-title">砖材</span>
+                        <button id="btn-apply-all-rooms" type="button" class="ui-btn ui-btn-sm ui-btn-icon" title="将当前空间砖材设置应用到全部空间" aria-label="应用到全部空间">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                    </div>
+
+                    <!-- 花色选择 -->
+                    <div class="panel-card-subtle flex items-center gap-2.5">
+                        <div id="swatch-box" class="swatch-box" title="点击选择花色">
+                            <canvas id="swatch-canvas" width="80" height="60" class="w-full h-full block"></canvas>
+                            <span id="swatch-label" class="swatch-caption">云多拉灰</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <button id="btn-open-style-picker" type="button" class="ui-btn ui-btn-sm w-full px-1.5">
+                                <i class="ph ph-swatches text-[12px]"></i><span>选择花色</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 规格编号：主行预览 + 默认收起的高级设置 -->
+                    <div class="form-row">
+                        <label class="form-label" title="砖号 = 前缀 + 规格号 + 序号，铺贴后自动编号">规格编号</label>
+                        <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                            <span id="spec-num-preview" class="spec-preview-lg" title="当前编号预览">CT1-1</span>
+                            <button id="btn-spec-adv-toggle" type="button" class="ui-btn spec-adv-btn shrink-0" aria-expanded="false" aria-controls="spec-adv-panel" title="设置材料类型、前缀与后缀分隔符" aria-label="高级编号设置">
+                                <i class="ph ph-sliders-horizontal text-[13px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="spec-adv-panel" class="spec-adv-panel hidden">
+                        <div class="form-row">
+                            <label class="spec-adv-label" for="spec-kind-select" title="决定默认编号前缀">材料类型</label>
+                            <select id="spec-kind-select" class="ui-select flex-1 px-1.5"></select>
+                        </div>
+                        <div class="form-row">
+                            <label class="spec-adv-label" for="spec-prefix-input" title="同花色共用编号前缀">编号前缀</label>
+                            <input id="spec-prefix-input" type="text" maxlength="6" class="ui-input font-mono flex-1 px-1.5 text-center" placeholder="CT">
+                        </div>
+                        <div class="form-row">
+                            <label class="spec-adv-label" for="spec-sep-input" title="砖号分隔符，全工程统一">编号后缀</label>
+                            <input id="spec-sep-input" type="text" maxlength="3" class="ui-input font-mono flex-1 px-1.5 text-center" placeholder="-">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">常用规格</label>
+                        <select id="size-select" class="ui-select flex-1 font-mono"></select>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" title="单块长度 × 宽度">尺寸</label>
+                        <div class="flex items-center gap-1 flex-1 min-w-0">
+                            <input id="custom-w-input" data-len type="number" min="50" max="3600" step="10" value="800" class="ui-input font-mono flex-1 min-w-0 text-center" title="砖长">
+                            <button id="btn-swap-dim" type="button" class="ui-btn px-1.5 shrink-0" title="长宽对调">
+                                <i class="ph ph-arrows-left-right text-[13px] text-slate-500"></i>
+                            </button>
+                            <input id="custom-h-input" data-len type="number" min="50" max="3600" step="10" value="800" class="ui-input font-mono flex-1 min-w-0 text-center" title="砖宽">
+                            <span data-unit-text class="spec-unit-tag">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" title="当前规格砖材/地板单价（同花色与规格在地面与墙面间自动同步）">单价</label>
+                        <div class="input-unit flex-1" data-unit="元/m²">
+                            <input id="tile-price-input" type="number" data-no-unit min="0" max="99999" step="5" value="128" class="ui-input font-mono w-full text-center" title="当前规格单价 (元/m²)">
+                        </div>
+                    </div>
+
+                    <div id="joint-gap-row" class="form-row">
+                        <label class="form-label" title="相邻砖块之间的留缝宽度">砖缝</label>
+                        <div class="input-unit flex-1" data-unit="mm">
+                            <input id="gap-select" type="number" min="0" max="30" step="0.5" value="2" class="ui-input font-mono w-full text-center" title="砖缝宽度">
+                        </div>
+                    </div>
+
+                    <div id="wood-expansion-panel" class="form-row">
+                        <label class="form-label" title="最外圈离墙留缝宽度">外边缝</label>
+                        <div class="input-unit flex-1" data-unit="mm">
+                            <input id="expansion-gap-input" type="number" min="0" max="50" step="0.5" value="5" class="ui-input font-mono w-full text-center" title="外边缝宽度">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卡片 4（地面）：铺贴 -->
+                <div class="panel-card space-y-2 floor-only" data-card="floor-method">
+                    <div class="section-header">
+                        <span class="section-title">铺贴</span>
+                        <button id="btn-pick-origin" type="button" class="ui-btn ui-btn-sm ui-btn-icon" title="在画布上点选起铺点 (O)" aria-label="定义起铺点">
+                            <i class="ph ph-crosshair"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button id="pattern-straight" type="button" data-pattern="straight" class="pattern-btn active">
+                            <i class="ti ti-pat-straight text-2xl mb-1"></i>
+                            <span class="text-[11px]">正铺</span>
+                        </button>
+                        <button id="pattern-brick" type="button" data-pattern="brick" class="pattern-btn">
+                            <i class="ti ti-pat-brick text-2xl mb-1"></i>
+                            <span class="text-[11px]">工字铺</span>
+                        </button>
+                        <button id="pattern-stagger" type="button" data-pattern="stagger_369" class="pattern-btn">
+                            <i class="ti ti-pat-stagger text-2xl mb-1"></i>
+                            <span class="text-[11px]">369铺</span>
+                        </button>
+                        <button id="pattern-diagonal" type="button" data-pattern="diagonal" class="pattern-btn">
+                            <i class="ti ti-pat-diag text-2xl mb-1"></i>
+                            <span class="text-[11px]">45°斜铺</span>
+                        </button>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">起铺位置</label>
+                        <select id="origin-select" class="ui-select flex-1">
+                            <option value="bl">左下角</option>
+                            <option value="tl">左上角</option>
+                            <option value="tr">右上角</option>
+                            <option value="br">右下角</option>
+                            <option value="center">房间中心</option>
+                            <option value="custom">自定义拾取</option>
+                        </select>
+                    </div>
+                    <div id="origin-group-hint" class="hidden text-[11px] leading-snug text-slate-500 -mt-1 pl-1"></div>
+                </div>
+
+                <!-- 立面卡片组：墙面砖材 / 墙面铺贴 / 墙面算量 -->
+                <div id="elev-panel"></div>
+
+                <!-- 卡片 5（地面）：算量 -->
+                <div class="panel-card space-y-2 floor-only" data-card="calc-settings">
+                    <div class="section-header">
+                        <span class="section-title">算量</span>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" title="地面主材额外备用损耗比例">备用损耗</label>
+                        <div class="input-unit flex-1" data-unit="%">
+                            <input id="wastage-input" type="number" data-no-unit min="0" max="30" step="1" value="5" class="ui-input font-mono w-full text-center" title="地面备用损耗率 (%)">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" title="地面铺贴辅料单价（水泥砂浆/背胶/防潮垫等）">辅料单价</label>
+                        <div class="input-unit flex-1" data-unit="元/m²">
+                            <input id="floor-aux-price-input" type="number" data-no-unit min="0" max="9999" step="5" value="35" class="ui-input font-mono w-full text-center" title="地面辅料单价 (元/m²)">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="chk-small-cut-reuse" class="form-label cursor-pointer" title="将裁切产生的余料复用到其他裁切块（地面与墙面共用）">余料复用</label>
+                        <input id="chk-small-cut-reuse" type="checkbox" checked class="accent-blue-600" title="将裁切产生的余料复用到其他裁切块（地面与墙面共用）">
+                    </div>
+
+                    <!-- 美缝子组（仅地面瓷砖显示） -->
+                    <div id="tile-grout-panel" class="panel-card-subtle space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="panel-sub-title">美缝</span>
+                            <label class="flex items-center space-x-1 cursor-pointer text-[11px] text-slate-600">
+                                <input type="checkbox" id="grout-enable-chk" checked class="accent-blue-600">
+                                <span>计入</span>
+                            </label>
+                        </div>
+                        <div id="grout-settings-rows" class="space-y-1.5">
+                            <div class="form-row">
+                                <label class="form-label">缝色</label>
+                                <div class="color-picker-wrapper flex-1" title="选择美缝颜色">
+                                    <span id="grout-color-swatch" class="color-swatch-box" style="background-color: #94a3b8;"></span>
+                                    <span id="grout-color-hex" class="color-hex-text">#94A3B8</span>
+                                    <input id="grout-color-select" type="color" value="#94a3b8" aria-label="美缝颜色">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" title="每平方美缝施工单价 (元/m²)">单价</label>
+                                <div class="input-unit flex-1" data-unit="元/m²">
+                                    <input id="grout-price-input" type="number" data-no-unit min="0" max="9999" step="1" value="20" class="ui-input font-mono w-full text-center" title="美缝单价 (元/m²)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 左侧底部主操作区 -->
+            <div class="sidebar-footer">
+                <div class="floor-footer-only">
+                    <button id="btn-ai-origin" type="button" class="ui-btn ui-btn-primary w-full" title="按各空间主门洞自动优化全屋起铺点，减少碎砖">
+                        <i class="ph ph-sparkle text-xs"></i>
+                        <span>AI 全屋优排</span>
+                    </button>
+                </div>
+                <div id="elev-footer-actions" class="elev-footer-only">
+                    <button id="btn-elev-apply-all" type="button" class="ui-btn ui-btn-sm flex-1" title="将当前墙面设置同步到本空间全部墙面">
+                        <i class="ph ph-copy text-xs"></i>
+                        <span>同步全墙</span>
+                    </button>
+                    <button id="btn-elev-clear" type="button" class="ui-btn ui-btn-sm ui-btn-danger flex-1" title="取消当前显示墙面的铺贴">
+                        <i class="ph ph-x-circle text-xs"></i>
+                        <span>取消铺贴</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 3.2 中间工作区（顶部模式 Tab + 画布视口） -->
+        <section class="workspace-center">
+            <!-- 地面 / 立面模式切换栏 -->
+            <div id="workspace-mode-bar" class="workspace-mode-bar">
+                <div class="mode-tab-group" role="tablist" aria-label="视图模式">
+                    <button id="btn-mode-floor" type="button" role="tab" aria-selected="true" class="mode-tab is-active" data-mode="floor" title="地面绘制与铺贴">
+                        <i class="ph ph-squares-four"></i>
+                        <span>地面</span>
+                    </button>
+                    <button id="btn-mode-elev" type="button" role="tab" aria-selected="false" class="mode-tab" data-mode="elev" title="墙面立面铺贴">
+                        <i class="ph ph-wall"></i>
+                        <span>立面</span>
+                    </button>
+                </div>
+
+                <div class="mode-ctx-sep"></div>
+
+                <!-- 地面上下文条 -->
+                <div id="floor-mode-context" class="mode-context-bar">
+                </div>
+
+                <!-- 立面上下文条 -->
+                <div id="elev-mode-context" class="mode-context-bar hidden">
+                    <div id="elev-tabs" class="elev-tabs"></div>
+                </div>
+            </div>
+
+            <!-- 中间 2D CAD / 立面共用视口 -->
+            <div id="canvas-wrapper" class="flex-1 relative overflow-hidden">
+                <canvas id="main-canvas" class="absolute inset-0 cursor-default"></canvas>
+
+                <!-- 左上角方向指针（指北针） -->
+                <div id="compass-hud" class="compass-hud" title="方向指针：拖动旋转，每 45° 吸附，双击复位" aria-label="方向指针">
+                    <canvas id="compass-hud-canvas" width="48" height="48"></canvas>
+                </div>
+
+                <!-- 左下角：楼层开关与层列表 -->
+                <div id="floor-hud" class="floor-hud">
+                    <div id="floor-hud-menu" class="floor-hud-menu hidden" role="menu">
+                        <div class="floor-hud-caption">图纸层</div>
+                        <div id="floor-hud-list" class="floor-hud-list"></div>
+                        <div class="floor-hud-sep"></div>
+                        <button id="floor-hud-add" type="button" class="floor-hud-item"><i class="ph ph-plus"></i><span>新建层</span></button>
+                        <button id="floor-hud-copy" type="button" class="floor-hud-item"><i class="ph ph-copy"></i><span>复制当前层</span></button>
+                        <button id="floor-hud-rename" type="button" class="floor-hud-item"><i class="ph ph-pencil-simple"></i><span>重命名当前层</span></button>
+                        <button id="floor-hud-del" type="button" class="floor-hud-item is-danger"><i class="ph ph-trash"></i><span>删除当前层</span></button>
+                        <div class="floor-hud-sep"></div>
+                        <div class="floor-hud-ghost-box">
+                            <label id="floor-hud-ghost-wrap" class="floor-hud-ghost-row" title="透显紧邻下一层的墙体与门窗轮廓作为绘制参考">
+                                <input id="floor-hud-ghost-chk" type="checkbox">
+                                <i class="ph ph-eye"></i>
+                                <span id="floor-hud-ghost-label">透显底层</span>
+                            </label>
+                            <div id="floor-hud-ghost-opacity-row" class="floor-hud-opacity-row hidden">
+                                <span class="floor-hud-opacity-lbl">透明度</span>
+                                <input id="floor-hud-ghost-opacity" type="range" min="10" max="85" step="5" value="35" class="floor-hud-range">
+                                <span id="floor-hud-ghost-opacity-val" class="floor-hud-opacity-val">35%</span>
+                            </div>
+                        </div>
+                        <div class="floor-hud-sep"></div>
+                        <div class="floor-hud-mirror-row">
+                            <span class="floor-hud-mirror-lbl"><i class="ph ph-flip-horizontal"></i><span>镜像户型</span></span>
+                            <div class="floor-hud-mirror-btns">
+                                <button id="floor-hud-mirror-x" type="button" class="floor-hud-mini-btn" title="左右镜像翻转" aria-label="左右镜像"><i class="ph ph-flip-horizontal"></i></button>
+                                <button id="floor-hud-mirror-y" type="button" class="floor-hud-mini-btn" title="上下镜像翻转" aria-label="上下镜像"><i class="ph ph-flip-vertical"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floor-hud-bar">
+                        <button id="floor-hud-toggle" type="button" class="floor-hud-toggle" title="启用/关闭楼层管理" aria-pressed="false">
+                            <i class="ph ph-stack"></i>
+                        </button>
+                        <button id="floor-hud-btn" type="button" class="floor-hud-btn hidden" title="切换或管理图纸层" aria-haspopup="menu" aria-expanded="false">
+                            <span id="floor-hud-name">1F</span>
+                            <i class="ph ph-caret-up floor-hud-caret"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 画布缩放控件 -->
+                <div class="zoom-hud" role="group" aria-label="画布缩放">
+                    <button id="btn-zoom-out" type="button" title="缩小 (-)" aria-label="缩小"><i class="ph ph-minus"></i></button>
+                    <span id="zoom-level-text" class="zoom-hud-text" title="当前缩放比例">100%</span>
+                    <button id="btn-zoom-in" type="button" title="放大 (+)" aria-label="放大"><i class="ph ph-plus"></i></button>
+                    <span class="zoom-hud-sep"></span>
+                    <button id="btn-zoom-reset" type="button" class="zoom-hud-fit" title="适应视图 (0)" aria-label="适应视图"><i class="ph ph-corners-out"></i></button>
+                </div>
+
+                <!-- 扫描识别动画遮罩 -->
+                <div id="scanning-overlay" class="tc-modal-mask hidden absolute inset-0 z-30 flex items-center justify-center">
+                    <div class="laser-line"></div>
+                    <div class="tc-scan-card">
+                        <div class="w-5 h-5 border-2 border-slate-300 border-t-transparent rounded-full animate-spin tc-spinner"></div>
+                        <div>
+                            <div class="text-xs font-semibold text-slate-800">正在识别户型图墙门并生成空间...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 尺寸输入/定长/标定浮层 -->
+                <div id="dim-input-popover" class="absolute hidden z-40 flex items-center justify-center gap-1.5 p-1.5 rounded-lg border shadow-lg">
+                    <span id="dim-input-label" class="hidden text-[11px] font-medium text-slate-600 pl-0.5"></span>
+                    <button id="dim-ext-neg" type="button" class="dim-dir-btn" title="向此方向伸缩" aria-label="向此方向伸缩"><i class="ph ph-caret-left"></i></button>
+                    <div class="dim-input-box inline-flex items-center justify-center px-1.5 h-6">
+                        <input type="number" id="dim-input-field" step="0.05" min="0.1" max="100000" class="w-16 bg-transparent font-mono font-bold text-xs text-slate-800 text-center outline-none appearance-none m-0 p-0" title="输入尺寸后按回车应用">
+                        <span id="dim-input-unit" class="text-[10px] text-slate-400 font-mono pl-0.5 pointer-events-none select-none">mm</span>
+                    </div>
+                    <button id="dim-ext-pos" type="button" class="dim-dir-btn" title="向此方向伸缩" aria-label="向此方向伸缩"><i class="ph ph-caret-right"></i></button>
+                    <button id="dim-ext-both" type="button" class="dim-dir-btn" title="向两端对称伸缩" aria-label="向两端对称伸缩"><i class="ph ph-code-simple rotate-90 text-2xl"></i></button>
+                    <button id="dim-input-submit" type="button" class="hidden ui-btn ui-btn-primary ui-btn-sm ui-btn-icon" title="确认应用 (Enter)" aria-label="确定"><i class="ph ph-check"></i></button>
+                    <button id="dim-input-calibrate" type="button" class="ui-btn ui-btn-sm">标定全图</button>
+                </div>
+
+                <!-- 立面设计视图：空状态提示 + 立面画布 -->
+                <div id="elev-view" class="elev-view hidden">
+                    <div id="elev-empty-state" class="elev-empty-state hidden">
+                        <i class="ph ph-wall elev-empty-icon"></i>
+                        <div class="elev-empty-title">暂无可选空间</div>
+                        <div class="elev-empty-desc">先在地面视图绘制闭合墙体或导入户型图生成空间，再设计墙面铺贴。</div>
+                        <button id="btn-elev-go-floor" type="button" class="ui-btn ui-btn-primary ui-btn-sm">返回地面绘制</button>
+                    </div>
+                    <div class="elev-canvas-box"><canvas id="elev-canvas"></canvas></div>
+                </div>
+
+                <!-- 斜墙摆直悬浮按钮 -->
+                <button id="straighten-btn" type="button" class="absolute hidden z-40 ui-btn ui-btn-primary ui-btn-sm shadow-md" style="transform: translate(-50%, -50%);">
+                    <i class="ph ph-compass-tool text-xs"></i>
+                    <span>摆直斜墙</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3.3 右侧 3D 预览与算量报表栏 -->
+        <aside class="workstation-sidebar-right">
+
+            <!-- 卡片1：3D 轴测预览 -->
+            <div class="panel-card">
+                <div class="section-header">
+                    <span class="section-title">3D 轴测预览</span>
+                    <button id="btn-rotate-3d" type="button" class="ui-btn ui-btn-sm ui-btn-icon" title="旋转 3D 视角" aria-label="旋转 3D 视角">
+                        <i class="ph ph-arrows-clockwise"></i>
+                    </button>
+                </div>
+                <div class="iso-3d-viewport">
+                    <canvas id="iso-3d-canvas" width="290" height="144" class="w-full h-full block cursor-grab active:cursor-grabbing" title="点击墙面进入立面 · 拖动旋转视角"></canvas>
+                    <span id="iso-3d-hint" class="iso-3d-hint">整层预览</span>
+                    <button id="btn-3d-mode-toggle" type="button" class="iso-3d-action-btn" title="进入立面设计" aria-label="立面设计">
+                        <i class="ph ph-wall"></i>
+                        <span>立面设计</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 卡片2：用量汇总（未选中空间 = 全层总表；选中空间 = 该空间用量） -->
+            <div class="panel-card flex-1 flex flex-col usage-panel">
+                <div class="section-header">
+                    <span class="section-title">用量汇总</span>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span id="usage-scope-badge" class="ui-badge usage-scope-badge truncate">全部</span>
+                        <button id="btn-usage-show-all" type="button" class="ui-btn ui-btn-sm ui-btn-icon hidden" title="取消选中空间，查看全部空间用量" aria-label="查看全部空间用量">
+                            <i class="ph ph-stack"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="usage-hero">
+                    <div id="res-total-area-label" class="summary-hero-label">铺贴总面积</div>
+                    <div id="res-total-area" class="summary-hero-val">0.00 m²</div>
+                </div>
+
+                <div class="detail-table-wrap usage-table-wrap flex-1 overflow-y-auto">
+                    <table class="w-full text-left border-collapse detail-table usage-table">
+                        <thead class="sticky top-0 z-10">
+                            <tr>
+                                <th class="pl-2.5">材料</th>
+                                <th class="text-center">规格</th>
+                                <th class="pr-2.5 text-right">用量 <span id="usage-item-count" class="usage-count"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="usage-table-body"></tbody>
+                    </table>
+                </div>
+
+                <button id="btn-open-quote" type="button" class="ui-btn ui-btn-primary usage-quote-btn" title="按当前用量生成报价单，可填写商家信息、单价、添加自定义项并导出 Excel / PDF">
+                    <i class="ph ph-receipt text-[13px]"></i>
+                    <span>生成报价</span>
+                </button>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- 4. 底部状态栏 -->
+    <footer class="workstation-footer">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="status-indicator-dot"></span>
+            <span id="current-action-hint" class="truncate min-w-0 font-medium">选择：点击空间配砖 · 拖动墙体/端点 · 双击尺寸改长</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+            <label class="status-icon-btn active" title="铺贴预览">
+                <input type="checkbox" id="chk-show-paving" checked>
+                <i class="ph ph-squares-four"></i>
+            </label>
+            <label class="status-icon-btn" title="砖号">
+                <input type="checkbox" id="chk-show-tile-marks">
+                <i class="ph ph-number-square-one"></i>
+            </label>
+            <label class="status-icon-btn active" title="显示门扇">
+                <input type="checkbox" id="chk-show-door-leaves" checked>
+                <i class="ph ph-door-open"></i>
+            </label>
+            <label class="status-icon-btn active" title="空间名称与面积">
+                <input type="checkbox" id="chk-room-labels" checked>
+                <i class="ph ph-puzzle-piece"></i>
+            </label>
+            <label class="status-icon-btn" title="起铺点">
+                <input type="checkbox" id="chk-show-origins">
+                <i class="ph ph-crosshair"></i>
+            </label>
+            <label class="status-icon-btn active" title="尺寸标注">
+                <input type="checkbox" id="chk-dimensions" checked>
+                <i class="ph ph-ruler"></i>
+            </label>
+            <label class="status-icon-btn active" title="方位针">
+                <input type="checkbox" id="chk-show-compass" checked>
+                <i class="ph ph-compass"></i>
+            </label>
+            <label class="status-icon-btn active" title="背景网格">
+                <input type="checkbox" id="chk-show-grid" checked>
+                <i class="ph ph-dots-nine"></i>
+            </label>
+            <label class="status-icon-btn active" title="网格吸附">
+                <input type="checkbox" id="chk-grid-snap" checked>
+                <i class="ph ph-magnet"></i>
+            </label>
+
+            <div id="underlay-menu-wrap" class="relative flex items-center hidden">
+                <button id="btn-footer-underlay" type="button" class="status-icon-btn" title="参考底图">
+                    <i class="ph ph-image"></i>
+                </button>
+
+                <div id="underlay-popover" class="underlay-popover hidden" role="menu">
+                    <button id="btn-underlay-clear" type="button" class="ribbon-menu-item" role="menuitem">
+                        <i class="ph ph-trash"></i>
+                        <span>清除底图</span>
+                    </button>
+                    <button id="btn-underlay-replace" type="button" class="ribbon-menu-item" role="menuitem">
+                        <i class="ph ph-upload-simple"></i>
+                        <span>替换底图</span>
+                    </button>
+                    <button id="btn-underlay-recognize" type="button" class="ribbon-menu-item" role="menuitem">
+                        <i class="ph ph-scan"></i>
+                        <span>识别底图</span>
+                    </button>
+                    <div class="underlay-popover-slider">
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                            <span>底图透明度</span>
+                            <span id="bg-opacity-label" class="font-mono text-slate-700 font-semibold">45%</span>
+                        </div>
+                        <input id="bg-opacity-slider" type="range" min="0" max="100" value="45" class="w-full" title="底图透明度">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 5. 户型图导入识别与 CV 视觉工作站弹窗 (亮色 · 左右分栏) -->
+    <div id="import-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-3 sm:p-5">
+        <div class="tc-modal-panel w-full max-w-[1160px] h-[88vh] max-h-[760px] flex flex-col">
+            <!-- 顶部标题栏 -->
+            <div class="tc-modal-head">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="tc-modal-head-icon">
+                        <i class="ph ph-scan"></i>
+                    </div>
+                    <h3 class="tc-modal-title">户型图识别与标定</h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button id="btn-confirm-import-modal" type="button" class="ui-btn ui-btn-primary">
+                        <i class="ph ph-check text-[13px]"></i>
+                        <span>应用到工程</span>
+                    </button>
+                    <button id="btn-close-import-modal" type="button" class="ws-close" title="关闭窗口" aria-label="关闭窗口">
+                        <i class="ph ph-x text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 主体：左右双栏工作区 -->
+            <div class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+                <!-- 左侧：图片识别与对比交互区 -->
+                <div class="flex-1 flex flex-col min-w-0 min-h-[300px] bg-slate-100 relative">
+                    <div class="px-3 py-2 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                        <div class="flex items-center gap-1.5">
+                            <button id="btn-trigger-upload" type="button" class="ui-btn ui-btn-primary">
+                                <i class="ph ph-upload-simple text-[13px]"></i>
+                                <span>上传户型图</span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <div class="segmented-group-4">
+                                <button type="button" data-cv-mode="split" class="segmented-btn cv-view-mode-btn active-tile">卷帘对比</button>
+                                <button type="button" data-cv-mode="side" class="segmented-btn cv-view-mode-btn">左右双图</button>
+                                <button type="button" data-cv-mode="overlay" class="segmented-btn cv-view-mode-btn">叠加透视</button>
+                                <button type="button" data-cv-mode="stage" class="segmented-btn cv-view-mode-btn">CV掩码</button>
+                            </div>
+
+                            <button id="btn-activate-eyedropper" type="button" class="ui-btn" title="点选图中墙体像素采样并重新识别">
+                                <i class="ph ph-eyedropper text-[13px]"></i>
+                                <span id="eyedropper-btn-label">吸管取墙色</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="cv-preview-wrapper" class="flex-1 relative overflow-hidden flex items-center justify-center select-none">
+                        <canvas id="cv-preview-canvas" class="block cursor-crosshair"></canvas>
+
+                        <!-- 卷帘对比浮动滑杆控件 (仅在 split 模式显示) -->
+                        <div id="cv-split-bar-ui" class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full border border-slate-200 flex items-center shadow">
+                            <input id="cv-split-slider" type="range" min="5" max="95" value="50" class="w-28 h-1 bg-slate-300 rounded accent-blue-600 cursor-pointer" title="拖动卷帘对比原图与识别结果">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：参数调节 + 基准墙比例纠正 + 空间命名 -->
+                <div class="w-full lg:w-[410px] shrink-0 flex flex-col bg-white overflow-y-auto divide-y divide-slate-200 lg:border-l border-slate-200">
+
+                    <!-- 模块 1：滤镜参数 -->
+                    <div class="p-3.5 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="section-title">1. 墙体识别参数</span>
+                            <div class="flex items-center gap-1">
+                                <button id="btn-cv-preset-color" type="button" class="ui-btn ui-btn-sm">彩图预设</button>
+                                <button id="btn-cv-preset-cad" type="button" class="ui-btn ui-btn-sm">黑白预设</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-[11px]">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span id="cv-sampled-swatch" class="w-4 h-4 rounded border border-slate-400 shrink-0" style="background:#919294;"></span>
+                                <span id="sampledColorBadge" class="text-slate-600 font-mono truncate">目标: 彩图灰墙 (L:108~180, C≤20)</span>
+                            </div>
+                            <button id="btn-rerun-cv" type="button" class="ui-btn ui-btn-primary ui-btn-sm shrink-0">重跑识别</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px]">
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">墙体亮度下限</span><span id="lblLumMin" class="font-mono font-bold text-primary">108</span></div>
+                                <input id="paramLumMin" type="range" min="0" max="200" value="108" class="w-full">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">墙体亮度上限</span><span id="lblLumMax" class="font-mono font-bold text-primary">180</span></div>
+                                <input id="paramLumMax" type="range" min="60" max="245" value="180" class="w-full">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">最大色度(去木纹)</span><span id="lblMaxChroma" class="font-mono font-bold text-primary">20</span></div>
+                                <input id="paramMaxChroma" type="range" min="4" max="90" value="20" class="w-full">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">最小墙长过滤</span><span id="lblMinWallLen" class="font-mono font-bold text-primary">28px</span></div>
+                                <input id="paramMinWallLen" type="range" min="16" max="90" value="28" class="w-full">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">最小墙厚阈值</span><span id="lblMinThick" class="font-mono font-bold text-primary">6px</span></div>
+                                <input id="paramMinThick" type="range" min="2" max="16" value="6" class="w-full">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5"><span class="text-slate-500">最大墙厚阈值</span><span id="lblMaxThick" class="font-mono font-bold text-primary">38px</span></div>
+                                <input id="paramMaxThick" type="range" min="14" max="55" value="38" class="w-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块 2：比例尺标定 -->
+                    <div class="p-3.5 space-y-2.5">
+                        <span class="section-title">2. 比例尺标定</span>
+                        <div class="form-row">
+                            <label class="form-label">选择墙段</label>
+                            <select id="cv-calib-wall-select" class="ui-select flex-1 font-mono"></select>
+                        </div>
+
+                        <div id="cv-calib-editor-card" class="hidden p-2.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                                    <span class="tc-dot-accent"></span>
+                                    <span id="cv-calib-selected-title">基准墙</span>
+                                </span>
+                                <span id="cv-calib-current-info" class="font-mono text-slate-500">0 mm</span>
+                            </div>
+                            <div class="form-row">
+                                <label class="text-[11px] font-semibold text-slate-700 shrink-0">实际长度</label>
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <input id="cv-calib-wall-mm" data-len type="number" min="100" max="50000" step="50" value="3600" class="ui-input font-mono font-bold flex-1 min-w-0 text-center" placeholder="输入实际长度">
+                                    <span data-unit-text class="text-[11px] text-slate-500 font-mono shrink-0">mm</span>
+                                    <button id="btn-cv-apply-scale" type="button" class="ui-btn ui-btn-primary ui-btn-sm px-2.5 font-semibold shrink-0">
+                                        应用比例
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块 3：空间命名与校核 -->
+                    <div class="p-3.5 flex-1 flex flex-col min-h-[210px] space-y-2">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="section-title">3. 空间命名与校核</span>
+                            <div class="flex items-center gap-1.5">
+                                <button id="btn-rerun-ocr" type="button" class="ui-btn ui-btn-sm" title="调用前端 PP-OCRv5 模型自动检测并识别户型图中的房间文字名称">
+                                    OCR识别房间名
+                                </button>
+                                <span id="cv-room-count-tag" class="ui-badge font-mono">0 个闭合空间</span>
+                            </div>
+                        </div>
+
+                        <!-- PP-OCRv5 状态：仅在识别中/成功/失败时显示 -->
+                        <div id="cv-ocr-status-bar" class="hidden px-2.5 py-1 rounded bg-slate-100 border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
+                            <span id="cv-ocr-status-badge" class="text-slate-700 font-mono truncate"></span>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button type="button" class="cv-quick-name-btn chip">客餐厅</button>
+                            <button type="button" class="cv-quick-name-btn chip">客厅</button>
+                            <button type="button" class="cv-quick-name-btn chip">主卧</button>
+                            <button type="button" class="cv-quick-name-btn chip">次卧</button>
+                            <button type="button" class="cv-quick-name-btn chip">书房</button>
+                            <button type="button" class="cv-quick-name-btn chip">厨房</button>
+                            <button type="button" class="cv-quick-name-btn chip">卫生间</button>
+                            <button type="button" class="cv-quick-name-btn chip">阳台</button>
+                        </div>
+
+                        <div id="cv-room-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-0.5 max-h-[210px]">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 通用模态弹窗 -->
+    <div id="modal-backdrop" class="tc-modal-mask hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel w-[480px] max-w-full">
+            <div class="tc-modal-head">
+                <h3 id="modal-title" class="tc-modal-title">提示</h3>
+                <button id="btn-close-generic-modal" type="button" class="ws-close" title="关闭" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="p-4 space-y-2.5 text-xs text-slate-600"></div>
+        </div>
+    </div>
+
+    <!-- 6b. 花色选择管理器 -->
+    <!-- 导出图纸选项弹窗（CAD DXF/DWG 与 PDF 共用） -->
+    <div id="cad-export-options-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel flex flex-col" style="width:min(640px,100%);max-height:min(88vh,760px)" role="dialog" aria-modal="true" aria-labelledby="exp-opt-title">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <span id="exp-opt-title" class="tc-modal-title">导出图纸选项</span>
+                    <span id="exp-opt-sub" class="tc-modal-sub hidden"></span>
+                </div>
+                <button id="btn-close-cad-export" type="button" class="ws-close" title="关闭 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+            <div class="cad-exp-body flex-1">
+                <div class="space-y-2">
+                    <div class="text-xs font-semibold text-slate-700">图面显示选项</div>
+                    <div class="cad-exp-checks">
+                        <label class="cad-exp-check">
+                            <input id="exp-opt-show-tile-marks" type="checkbox" checked>
+                            <span>显示砖号</span>
+                        </label>
+                        <label class="cad-exp-check" title="用不同颜色描边区分不同规格的瓷砖、地板与过门石">
+                            <input id="exp-opt-color-tiles" type="checkbox">
+                            <span>块着色</span>
+                        </label>
+                        <label class="cad-exp-check" title="将墙体轮廓填充为实心">
+                            <input id="exp-opt-solid-walls" type="checkbox">
+                            <span>墙壁实心</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cad-exp-fields-sec">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="text-xs font-semibold text-slate-700 shrink-0">图签字段</span>
+                            <span id="exp-opt-frame-hint" class="ui-badge truncate">内置默认图签</span>
+                        </div>
+                        <button id="btn-reset-export-fields" type="button" class="ui-btn ui-btn-sm ui-btn-icon shrink-0" title="恢复默认图签字段" aria-label="恢复默认图签字段"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                    </div>
+                    <div id="exp-opt-fields-grid" class="cad-exp-fields-grid"></div>
+                </div>
+
+                <div class="cad-exp-adv-sec">
+                    <div class="cad-exp-adv-head">
+                        <button id="btn-toggle-cad-exp-adv" type="button" class="cad-exp-adv-toggle" aria-expanded="false" aria-controls="cad-exp-adv-body">
+                            <i class="ph ph-caret-right cad-exp-adv-caret"></i>
+                            <span class="text-xs font-semibold text-slate-700">高级选项</span>
+                            <span class="text-[11px] text-slate-400">字号比例</span>
+                        </button>
+                        <button id="btn-reset-export-fonts" type="button" class="ui-btn ui-btn-sm ui-btn-icon shrink-0 hidden" title="恢复默认字号 (100%)" aria-label="恢复默认字号"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                    </div>
+                    <div id="cad-exp-adv-body" class="cad-exp-adv-body hidden">
+                        <div id="exp-opt-fonts-grid" class="cad-exp-fonts-grid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cad-exp-foot">
+                <button id="btn-cancel-cad-export" type="button" class="ui-btn ui-btn-sm">取消</button>
+                <button id="btn-confirm-cad-export" type="button" class="ui-btn ui-btn-sm ui-btn-primary">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出高清彩图 (JPG) 选项弹窗 -->
+    <div id="img-export-options-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel flex flex-col" style="width:min(540px,100%);max-height:min(86vh,680px)" role="dialog" aria-modal="true" aria-labelledby="img-exp-title">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <span id="img-exp-title" class="tc-modal-title">导出高清彩图 (JPG)</span>
+                    <span class="tc-modal-sub">高清无图框彩图</span>
+                </div>
+                <button id="btn-close-img-export" type="button" class="ws-close" title="关闭 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+            <div class="cad-exp-body flex-1">
+                <div class="space-y-2">
+                    <div class="text-xs font-semibold text-slate-700">导出范围</div>
+                    <div id="img-exp-rooms-grid" class="img-exp-rooms-grid"></div>
+                </div>
+
+                <div class="cad-exp-fields-sec">
+                    <div class="text-xs font-semibold text-slate-700">图面显示选项</div>
+                    <div class="img-exp-checks">
+                        <label class="cad-exp-check">
+                            <input id="img-exp-show-marks" type="checkbox" checked>
+                            <span>显示砖号</span>
+                        </label>
+                        <label class="cad-exp-check">
+                            <input id="img-exp-show-dims" type="checkbox" checked>
+                            <span>四周尺寸标注</span>
+                        </label>
+                        <label class="cad-exp-check">
+                            <input id="img-exp-show-labels" type="checkbox" checked>
+                            <span>空间名称与面积</span>
+                        </label>
+                        <label class="cad-exp-check">
+                            <input id="img-exp-show-origin" type="checkbox" checked>
+                            <span>显示起铺点</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="cad-exp-foot">
+                <button id="btn-cancel-img-export" type="button" class="ui-btn ui-btn-sm">取消</button>
+                <button id="btn-confirm-img-export" type="button" class="ui-btn ui-btn-sm ui-btn-primary">确认导出 JPG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作指南与关于（help.html）：桌面模式弹出独立无边框子窗口，浏览器模式走模态 iframe -->
+    <div id="help-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel flex flex-col" style="width:min(940px,100%);height:min(680px,100%)" role="dialog" aria-modal="true" aria-label="操作指南与关于">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <span class="tc-modal-title">操作指南与关于</span>
+                    <span class="tc-modal-sub">EasyTile v1.0.0</span>
+                </div>
+                <button id="btn-close-help-modal" type="button" class="ws-close shrink-0" title="关闭 (Esc)" aria-label="关闭"><i class="ph ph-x text-xs"></i></button>
+            </div>
+            <iframe id="help-iframe" title="操作指南与关于" style="flex:1;width:100%;border:0;background:var(--bg-app)"></iframe>
+        </div>
+    </div>
+
+    <!-- 报价单（quote.html）：按用量汇总生成，可改单价 / 添加自定义项 / 导出 Excel -->
+    <div id="quote-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel flex flex-col" style="width:min(1180px,100%);height:min(860px,100%)" role="dialog" aria-modal="true" aria-label="生成报价">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <span class="tc-modal-title">生成报价</span>
+                    <span id="quote-modal-sub" class="tc-modal-sub truncate"></span>
+                </div>
+                <button id="btn-close-quote" type="button" class="ws-close shrink-0" title="关闭 (Esc)" aria-label="关闭"><i class="ph ph-x text-xs"></i></button>
+            </div>
+            <iframe id="quote-iframe" title="报价单" style="flex:1;width:100%;border:0;background:var(--bg-app)"></iframe>
+        </div>
+    </div>
+
+    <!-- 图框编辑器（tukuan.html），“保存应用图框”后用于 CAD / PDF 导出 -->
+    <div id="frame-editor-modal" class="tc-modal-mask hidden fixed inset-x-0 bottom-0 z-50 flex items-center justify-center p-4">
+        <div class="tc-modal-panel flex flex-col" style="width:min(1500px,100%);height:min(920px,100%)" role="dialog" aria-modal="true" aria-label="图框设置">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <span class="tc-modal-title">图框设置</span>
+                    <span id="frame-editor-sub" class="tc-modal-sub">保存应用后即用于 CAD / PDF 导出</span>
+                </div>
+                <button id="btn-close-frame-editor" type="button" class="ws-close shrink-0" title="关闭 (Esc)" aria-label="关闭"><i class="ph ph-x text-xs"></i></button>
+            </div>
+            <iframe id="frame-editor-iframe" title="图框编辑器" style="flex:1;width:100%;border:0;background:var(--bg-app)"></iframe>
+        </div>
+    </div>
+
+    <div id="style-picker-modal" class="tc-modal-mask hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="sp-window tc-modal-panel flex flex-col" role="dialog" aria-modal="true" aria-labelledby="sp-title">
+            <div class="tc-modal-head">
+                <div class="flex items-baseline gap-2.5 min-w-0">
+                    <h3 id="sp-title" class="tc-modal-title">选择花色</h3>
+                    <span id="sp-sub" class="tc-modal-sub"></span>
+                </div>
+                <button id="btn-close-style-picker" type="button" class="ws-close" title="关闭 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+
+            <!-- 工具条：搜索 + 数量 + 只显示自定义开关 -->
+            <div class="sp-toolbar shrink-0">
+                <div class="sp-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input id="sp-search" type="search" class="ui-input" placeholder="搜索花色名称" autocomplete="off">
+                </div>
+                <span id="sp-count" class="sp-count"></span>
+                <label class="flex items-center gap-1.5 text-[12px] text-slate-600 cursor-pointer select-none shrink-0 ml-auto" title="开启后仅显示用户自行上传创建的自定义花色">
+                    <input id="sp-only-custom" type="checkbox" class="accent-blue-600">
+                    <span>只显示自定义</span>
+                </label>
+            </div>
+
+            <div id="sp-body" class="sp-body flex-1 overflow-y-auto p-4">
+                <div id="sp-list" class="sp-grid"></div>
+            </div>
+            <input type="file" id="sp-file-input" accept="image/*" multiple class="hidden">
+        </div>
+    </div>
+
+    <!-- 新增花色整合弹窗：左侧参数区 + 右侧等比裁剪区 -->
+    <div id="style-add-modal" class="sa-modal hidden" role="dialog" aria-modal="true" aria-labelledby="sa-title">
+        <div class="sa-window tc-modal-panel">
+            <div class="tc-modal-head">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span id="sa-title" class="tc-modal-title">新增自定义花色</span>
+                    <span id="sa-step" class="ui-badge font-mono hidden"></span>
+                </div>
+                <button id="sa-close" type="button" class="ws-close" title="取消 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+            <div class="sa-body">
+                <!-- 左侧参数区 -->
+                <aside class="sa-sidebar">
+                    <div class="sa-sidebar-scroll">
+                        <div class="sa-field">
+                            <label class="sa-label" for="sa-name">花色名称</label>
+                            <input id="sa-name" type="text" maxlength="24" class="ui-input w-full" placeholder="例如：爵士白大理石">
+                        </div>
+
+                        <div class="sa-group">
+                            <div class="sa-group-head">
+                                <span class="sa-group-title">默认尺寸</span>
+                                <span class="sa-group-sub">同步锁定右侧裁剪框比例</span>
+                            </div>
+                            <div class="sa-field">
+                                <label class="sa-label" for="sa-size-preset">常用规格</label>
+                                <select id="sa-size-preset" class="ui-select font-mono w-full"></select>
+                            </div>
+                            <div class="sa-field">
+                                <label class="sa-label" for="sa-w">长 × 宽</label>
+                                <div class="sa-dim-row">
+                                    <input id="sa-w" type="number" min="50" max="3600" step="10" class="ui-input font-mono text-center" placeholder="800" title="默认长度 (mm)">
+                                    <button id="sa-swap-dim" type="button" class="ui-btn ui-btn-sm ui-btn-icon shrink-0" title="长宽对调" aria-label="长宽对调">
+                                        <i class="ph ph-arrows-left-right"></i>
+                                    </button>
+                                    <input id="sa-h" type="number" min="50" max="3600" step="10" class="ui-input font-mono text-center" placeholder="800" title="默认宽度 (mm)">
+                                    <span class="spec-unit-tag">mm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sa-group">
+                            <div class="sa-group-head">
+                                <span class="sa-group-title">规格编号默认值</span>
+                                <span id="sa-num-preview" class="ui-badge font-mono">CT1-1</span>
+                            </div>
+                            <div class="sa-field">
+                                <label class="sa-label" for="sa-kind">材料类型</label>
+                                <select id="sa-kind" class="ui-select w-full"></select>
+                            </div>
+                            <div class="sa-row-2">
+                                <div class="sa-field">
+                                    <label class="sa-label" for="sa-prefix">编号前缀</label>
+                                    <input id="sa-prefix" type="text" maxlength="6" class="ui-input font-mono w-full text-center" placeholder="CT">
+                                </div>
+                                <div class="sa-field">
+                                    <label class="sa-label" for="sa-sep">编号后缀</label>
+                                    <input id="sa-sep" type="text" maxlength="3" class="ui-input font-mono w-full text-center" placeholder="-">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sa-sidebar-foot">
+                        <button id="sa-save-apply" type="button" class="ui-btn ui-btn-primary w-full">保存并应用</button>
+                        <div class="sa-foot-sub">
+                            <button id="sa-save" type="button" class="ui-btn ui-btn-sm">仅保存</button>
+                            <button id="sa-cancel" type="button" class="ui-btn ui-btn-sm">取消</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- 右侧裁剪区 -->
+                <section class="sa-crop-pane">
+                    <div class="sa-crop-toolbar">
+                        <span id="sa-ratio-badge" class="ui-badge ui-badge-solid font-mono">比例 800×800 (1:1)</span>
+                        <div class="crop-tools" id="sa-crop-tools">
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="rotate-l" title="向左旋转 90°" aria-label="向左旋转 90°"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="rotate-r" title="向右旋转 90°" aria-label="向右旋转 90°"><i class="ph ph-arrow-clockwise"></i></button>
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="flip-h" title="水平翻转" aria-label="水平翻转"><i class="ph ph-flip-horizontal"></i></button>
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="flip-v" title="垂直翻转" aria-label="垂直翻转"><i class="ph ph-flip-vertical"></i></button>
+                            <span class="crop-sep"></span>
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="zoom-out" title="缩小" aria-label="缩小"><i class="ph ph-magnifying-glass-minus"></i></button>
+                            <button type="button" class="ui-btn ui-btn-sm ui-btn-icon" data-act="zoom-in" title="放大" aria-label="放大"><i class="ph ph-magnifying-glass-plus"></i></button>
+                            <button type="button" class="ui-btn ui-btn-sm" data-act="reset" title="重置裁剪视图">重置</button>
+                            <span class="crop-sep"></span>
+                            <button type="button" class="ui-btn ui-btn-sm" data-act="replace-img" title="更换原始图片"><i class="ph ph-image"></i><span>换图</span></button>
+                        </div>
+                        <input type="file" id="sa-file-input" accept="image/*" class="hidden">
+                    </div>
+                    <div class="crop-stage sa-crop-stage">
+                        <img id="sa-crop-img" alt="花色贴图裁剪">
+                    </div>
+                    <div class="sa-crop-foot">
+                        <span id="sa-crop-info" class="crop-info font-mono"></span>
+                        <span class="sa-crop-note">框选一整块砖/板的图案区域，贴图将按尺寸比例铺满</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5b. 启动欢迎页 (Workstation Start Screen) -->
+    <div id="welcome-screen" class="ws-hidden" role="dialog" aria-modal="true" aria-labelledby="ws-title">
+        <div class="ws-window">
+            <div class="ws-hero">
+                <header class="ws-top">
+                    <div class="ws-brand">
+                        <span class="ws-logo"><img src="assets/images/app.png" alt="EasyTile"></span>
+                        <span class="ws-brand-name">EasyTile 易贴</span>
+                    </div>
+                    <button id="ws-close" type="button" class="ws-close" title="关闭 (Esc)" aria-label="关闭">
+                        <i class="ph ph-x text-2xl"></i>
+                    </button>
+                </header>
+
+                <div class="ws-hero-main">
+                    <h1 class="ws-headline" id="ws-title">让瓷砖铺贴<span class="ws-accent">更简单<svg class="ws-accent-line" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8.5 Q 58 2 118 5.5" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></span></h1>
+                    <p class="ws-sub">轻松规划 · 精准计算 · 完美落地</p>
+
+                    <div class="ws-actions">
+                        <button id="m-start-draw" type="button" class="ws-btn ws-btn-primary" title="创建空白工程 (N)">
+                            <i class="ph-fill ph-plus-circle text-[16px]"></i>
+                            <span>创建工程</span>
+                        </button>
+                        <button id="m-open-cv-import" type="button" class="ws-btn ws-btn-glass" title="识图 / 底图建图 (I)">
+                            <i class="ph ph-image text-[16px]"></i>
+                            <span>识图创建</span>
+                        </button>
+                        <button id="m-load-std" type="button" class="ws-btn ws-btn-glass" title="打开示例户型 (E)">
+                            <i class="ph ph-house-line text-[16px]"></i>
+                            <span>打开示例</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ws-recent-panel">
+                <div class="ws-recent-hd">
+                    <span class="ws-recent-hd-l">
+                        <i class="ph ph-clock text-[14px]"></i>
+                        <span>最近工程与草稿</span>
+                    </span>
+                </div>
+
+                <div id="ws-recent-grid" class="ws-recent-grid"></div>
+
+                <footer class="ws-foot">
+                    <label class="ws-check"><input id="ws-show-startup" type="checkbox" checked> 启动时显示此窗口</label>
+                    <div class="ws-foot-r">
+                        <button id="ws-open-frame" type="button" class="ws-link">
+                            <i class="ph ph-frame-corners text-xs"></i>
+                            <span>图框设置</span>
+                        </button>
+                        <button id="ws-open-guide" type="button" class="ws-link">
+                            <i class="ph ph-question text-xs"></i>
+                            <span>操作指南</span>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5c. 联系作者二维码弹窗 -->
+    <div id="contact-author-modal" class="ws-contact-modal hidden" role="dialog" aria-modal="true" aria-labelledby="contact-author-title">
+        <div class="ws-contact-dialog">
+            <div class="ws-contact-head">
+                <span id="contact-author-title" class="ws-contact-title">
+                    <i class="ph ph-qr-code"></i>
+                    <span>联系作者</span>
+                </span>
+                <button id="btn-close-contact-author" type="button" class="ws-contact-close" title="关闭 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="ws-contact-body">
+                <div class="ws-contact-qr-box">
+                    <img id="contact-author-qr" src="assets/images/contact-qr.jpg" alt="联系作者二维码">
+                    <div id="contact-author-qr-fallback" class="ws-contact-qr-fallback hidden">
+                        <i class="ph ph-image text-2xl"></i>
+                        <span>暂未放置二维码图片</span>
+                    </div>
+                </div>
+                <p class="ws-contact-tip">微信扫码联系作者 · 咨询交流与问题反馈</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5d. 软件新版本升级提醒弹窗（右下角浮窗） -->
+    <div id="app-update-modal" class="upd-modal hidden" role="dialog" aria-modal="false" aria-labelledby="app-update-title">
+        <div class="tc-modal-panel upd-dialog">
+            <div class="tc-modal-head">
+                <span id="app-update-title" class="tc-modal-title flex items-center gap-2">
+                    <i class="ph ph-arrow-circle-up text-base text-[var(--primary)]"></i>
+                    <span>发现新版本</span>
+                </span>
+                <button id="btn-close-app-update" type="button" class="ws-close" title="关闭 (Esc)" aria-label="关闭">
+                    <i class="ph ph-x text-xs"></i>
+                </button>
+            </div>
+            <div class="upd-body">
+                <div class="upd-ver-row">
+                    <div class="upd-ver-chip">
+                        <span class="upd-ver-lbl">当前版本</span>
+                        <span id="upd-cur-ver" class="upd-ver-num font-mono">-</span>
+                    </div>
+                    <i class="ph ph-arrow-right text-slate-400"></i>
+                    <div class="upd-ver-chip is-new">
+                        <span class="upd-ver-lbl">最新版本</span>
+                        <span id="upd-new-ver" class="upd-ver-num font-mono">-</span>
+                    </div>
+                </div>
+                <div class="upd-notes-wrap">
+                    <div class="upd-notes-lbl">更新内容</div>
+                    <div id="upd-notes" class="upd-notes"></div>
+                </div>
+            </div>
+            <div class="upd-foot">
+                <button id="btn-upd-skip" type="button" class="ui-btn ui-btn-sm upd-skip-btn" title="忽略此版本，下次不再自动提示">跳过此版本</button>
+                <div class="upd-foot-actions">
+                    <button id="btn-upd-later" type="button" class="ui-btn ui-btn-sm">稍后提醒</button>
+                    <button id="btn-upd-download" type="button" class="ui-btn ui-btn-primary ui-btn-sm">
+                        <i class="ph ph-arrow-square-out"></i>
+                        <span>前往下载</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. 浮动吐司消息提示框 -->
+    <div id="project-drop-overlay" class="proj-drop-overlay hidden" aria-hidden="true">
+        <div class="proj-drop-card">
+            <i class="ph ph-file-arrow-down"></i>
+            <span>松开鼠标即可打开 .tcalc 工程文件</span>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-2">
+        <div class="tc-toast">
+            <span class="tc-toast-dot"></span>
+            <span id="toast-msg">操作成功</span>
+        </div>
+    </div>
+
+    <script src="assets/vendor/cropperjs/cropper.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/desktop-host.js"></script>
+    <script src="assets/js/image-cropper.js"></script>
+    <script src="assets/js/ui-dialogs.js"></script>
+    <script src="assets/js/presets.js"></script>
+    <script src="assets/js/material-lib.js"></script>
+    <script src="assets/js/cad-shared.js"></script>
+    <script src="assets/js/dxf-pdf.js"></script>
+    <script src="assets/js/units.js"></script>
+    <script src="assets/js/side-panel.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/elevation.js"></script>
+    <script src="assets/js/style-picker.js"></script>
+</body>
+</html>

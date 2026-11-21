@@ -1,0 +1,315 @@
+{
+  "version": 2,
+  "materials": {
+    "tile": {
+      "label": "瓷砖",
+      "sizes": [
+        {
+          "label": "800 × 800 mm",
+          "w": 800,
+          "h": 800
+        },
+        {
+          "label": "600 × 600 mm",
+          "w": 600,
+          "h": 600
+        },
+        {
+          "label": "750 × 1500 mm",
+          "w": 1500,
+          "h": 750
+        },
+        {
+          "label": "600 × 1200 mm",
+          "w": 1200,
+          "h": 600
+        },
+        {
+          "label": "300 × 300 mm",
+          "w": 300,
+          "h": 300
+        },
+        {
+          "label": "900 × 1800 mm (岩板)",
+          "w": 1800,
+          "h": 900
+        },
+        {
+          "label": "300 × 600 mm (铝扣板)",
+          "w": 600,
+          "h": 300
+        },
+        {
+          "label": "1200 × 1200 mm (蜂窝大板)",
+          "w": 1200,
+          "h": 1200
+        },
+        {
+          "label": "1200 × 2400 mm (大板/墙板)",
+          "w": 2400,
+          "h": 1200
+        },
+        {
+          "label": "400 × 2800 mm (护墙板)",
+          "w": 2800,
+          "h": 400
+        },
+        {
+          "label": "600 × 2800 mm (护墙板)",
+          "w": 2800,
+          "h": 600
+        }
+      ],
+      "styles": [
+        {
+          "id": "tile-pure-white",
+          "name": "纯白砖",
+          "desc": "纯色 · 默认",
+          "base": "#ffffff",
+          "vein": "#ffffff",
+          "accent": "#ffffff"
+        },
+        {
+          "id": "tile-marble",
+          "name": "大理石",
+          "desc": "爵士白大理石纹",
+          "base": "#eaeae8",
+          "vein": "#c4c7cc",
+          "accent": "#f5f5f4",
+          "image": "assets/images/textures/tile-marble.jpg"
+        },
+        {
+          "id": "tile-black-stone",
+          "name": "中国黑石材",
+          "desc": "石材 · 默认过门石",
+          "base": "#334155",
+          "vein": "#1e293b",
+          "accent": "#475569",
+          "image": "assets/images/textures/tile-black-stone.jpg",
+          "kind": "石材",
+          "prefix": "ST"
+        },
+        {
+          "id": "tile-warm-gray",
+          "name": "暖灰柔光砖",
+          "desc": "瓷砖 · 现代通体暖灰",
+          "base": "#d6d3cd",
+          "vein": "#c2beb7",
+          "accent": "#e3e0da",
+          "image": "assets/images/textures/tile-warm-gray.jpg"
+        },
+        {
+          "id": "tile-cream-beige",
+          "name": "奶白微水泥",
+          "desc": "瓷砖 · 奶油风哑光",
+          "base": "#f2ece1",
+          "vein": "#e0d7c7",
+          "accent": "#f8f4ec",
+          "image": "assets/images/textures/tile-cream-beige.jpg"
+        },
+        {
+          "id": "tile-dark-cement",
+          "name": "深灰水泥砖",
+          "desc": "瓷砖 · 工业风哑光灰",
+          "base": "#7a8088",
+          "vein": "#636971",
+          "accent": "#8e949c",
+          "image": "assets/images/textures/tile-dark-cement.jpg"
+        },
+        {
+          "id": "tile-calacatta-slab",
+          "name": "鱼肚白岩板",
+          "desc": "瓷砖 · 连纹大板",
+          "base": "#f5f4f0",
+          "vein": "#c9c4b8",
+          "accent": "#fbfaf7",
+          "image": "assets/images/textures/tile-calacatta-slab.jpg"
+        },
+        {
+          "id": "wallboard-wood-slat",
+          "name": "原木格栅墙板",
+          "desc": "墙板 · 实木格栅饰面",
+          "base": "#c8a27a",
+          "vein": "#a57f58",
+          "accent": "#d7b692",
+          "image": "assets/images/textures/wallboard-wood-slat.jpg",
+          "kind": "墙板",
+          "prefix": "WB"
+        },
+        {
+          "id": "wallboard-bamboo-cream",
+          "name": "素色护墙板",
+          "desc": "墙板 · 竹木纤维/碳晶板",
+          "base": "#ebe5d9",
+          "vein": "#d5cdbe",
+          "accent": "#f4f0e8",
+          "image": "assets/images/textures/wallboard-bamboo-cream.jpg",
+          "kind": "墙板",
+          "prefix": "WB"
+        },
+        {
+          "id": "wallboard-walnut",
+          "name": "胡桃木墙板",
+          "desc": "墙板 · 深胡桃木饰面",
+          "base": "#7c5c43",
+          "vein": "#5f432e",
+          "accent": "#917056",
+          "image": "assets/images/textures/wallboard-walnut.jpg",
+          "kind": "墙板",
+          "prefix": "WB"
+        },
+        {
+          "id": "ceiling-honeycomb",
+          "name": "蜂窝大板",
+          "desc": "吊顶板 · 哑光纯白大板",
+          "base": "#f8fafc",
+          "vein": "#e2e8f0",
+          "accent": "#ffffff",
+          "image": "assets/images/textures/ceiling-honeycomb.jpg",
+          "kind": "吊顶板",
+          "prefix": "CB"
+        },
+        {
+          "id": "ceiling-alu-gusset",
+          "name": "铝扣板",
+          "desc": "吊顶板 · 厨卫集成铝扣板",
+          "base": "#edf1f5",
+          "vein": "#cfd7e0",
+          "accent": "#f6f8fa",
+          "image": "assets/images/textures/ceiling-alu-gusset.jpg",
+          "kind": "吊顶板",
+          "prefix": "CB"
+        },
+        {
+          "id": "ceiling-wood-panel",
+          "name": "木纹吊顶板",
+          "desc": "吊顶板 · 生态木/蜂窝木纹",
+          "base": "#d8be9e",
+          "vein": "#bfa27f",
+          "accent": "#e4ceb2",
+          "image": "assets/images/textures/ceiling-wood-panel.jpg",
+          "kind": "吊顶板",
+          "prefix": "CB"
+        }
+      ]
+    },
+    "wood": {
+      "label": "地板",
+      "sizes": [
+        {
+          "label": "1210 × 195 mm",
+          "w": 1210,
+          "h": 195
+        },
+        {
+          "label": "910 × 125 mm",
+          "w": 910,
+          "h": 125
+        },
+        {
+          "label": "1200 × 150 mm",
+          "w": 1200,
+          "h": 150
+        },
+        {
+          "label": "600 × 100 mm",
+          "w": 600,
+          "h": 100
+        },
+        {
+          "label": "1220 × 180 mm (SPC石晶地板)",
+          "w": 1220,
+          "h": 180
+        },
+        {
+          "label": "1500 × 190 mm (三层实木复合)",
+          "w": 1500,
+          "h": 190
+        },
+        {
+          "label": "1800 × 190 mm (大独幅木地板)",
+          "w": 1800,
+          "h": 190
+        },
+        {
+          "label": "450 × 90 mm (人字拼短板)",
+          "w": 450,
+          "h": 90
+        }
+      ],
+      "styles": [
+        {
+          "id": "wood-natural",
+          "name": "原木色",
+          "desc": "纯色 · 默认",
+          "base": "#d9b48a",
+          "vein": "#d9b48a",
+          "accent": "#d9b48a"
+        },
+        {
+          "id": "wood-light-oak",
+          "name": "浅橡木色",
+          "desc": "橡木木纹",
+          "base": "#d6bb95",
+          "vein": "#c7a87e",
+          "accent": "#e2cba8",
+          "image": "assets/images/textures/wood-light-oak.jpg"
+        },
+        {
+          "id": "wood-white-oak",
+          "name": "奶油白橡木",
+          "desc": "地板 · 现代原木/奶油风",
+          "base": "#e5d5be",
+          "vein": "#d3c0a5",
+          "accent": "#efe3d1",
+          "image": "assets/images/textures/wood-white-oak.jpg"
+        },
+        {
+          "id": "wood-ash-natural",
+          "name": "白蜡木原色",
+          "desc": "地板 · 清新直纹白蜡木",
+          "base": "#dcc7a6",
+          "vein": "#c6ae8b",
+          "accent": "#e8d7bc",
+          "image": "assets/images/textures/wood-ash-natural.jpg"
+        },
+        {
+          "id": "wood-warm-teak",
+          "name": "缅甸柚木色",
+          "desc": "地板 · 暖调金棕柚木",
+          "base": "#b88454",
+          "vein": "#9c6b3e",
+          "accent": "#c9986a",
+          "image": "assets/images/textures/wood-warm-teak.jpg"
+        },
+        {
+          "id": "wood-black-walnut",
+          "name": "北美黑胡桃",
+          "desc": "地板 · 轻奢深胡桃木纹",
+          "base": "#6e4f3a",
+          "vein": "#543a28",
+          "accent": "#83624b",
+          "image": "assets/images/textures/wood-black-walnut.jpg"
+        },
+        {
+          "id": "wood-smoke-gray",
+          "name": "烟熏灰橡木",
+          "desc": "地板 · 现代高级灰木纹",
+          "base": "#9e958b",
+          "vein": "#857c72",
+          "accent": "#b2aaa0",
+          "image": "assets/images/textures/wood-smoke-gray.jpg"
+        },
+        {
+          "id": "wood-red-cherry",
+          "name": "樱桃木色",
+          "desc": "地板 · 经典暖红木纹",
+          "base": "#a65e44",
+          "vein": "#8c4932",
+          "accent": "#ba7258",
+          "image": "assets/images/textures/wood-red-cherry.jpg"
+        }
+      ]
+    }
+  }
+}

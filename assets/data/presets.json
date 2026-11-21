@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "description": "工作站预设参数。修改后刷新页面生效；花色与常用规格见 materials.json，图框模板见 frame-templates.json。",
+
+  "project": {
+    "defaultName": "未命名项目",
+    "examples": [
+      {
+        "name": "标准两居室",
+        "desc": "5 个空间 · 地砖 + 木地板 · 4 门 5 窗",
+        "file": "assets/examples/standard-house.tcalc"
+      }
+    ]
+  },
+
+  "roomNames": ["客餐厅", "客厅", "主卧", "次卧", "书房", "厨房", "卫生间", "阳台"],
+
+  "draw": {
+    "wallThicknessMM": 240,
+    "wallThicknessOptions": [
+      { "mm": 120, "label": "薄隔墙" },
+      { "mm": 200, "label": "内隔墙" },
+      { "mm": 240, "label": "常规墙" },
+      { "mm": 280, "label": "承重墙" },
+      { "mm": 400, "label": "外墙" }
+    ],
+    "doorWidthMM": 880,
+    "windowWidthMM": 1360
+  },
+
+  "specKinds": {
+    "tile": [
+      { "kind": "瓷砖", "prefix": "CT" },
+      { "kind": "墙砖", "prefix": "WT" },
+      { "kind": "石材", "prefix": "ST" },
+      { "kind": "墙板", "prefix": "WB" },
+      { "kind": "吊顶板", "prefix": "CB" }
+    ],
+    "wood": [
+      { "kind": "地板", "prefix": "WD" }
+    ]
+  },
+
+  "floor": {
+    "patterns": {
+      "straight": "正铺",
+      "brick": "工字铺",
+      "stagger_369": "369铺",
+      "diagonal": "45°斜铺"
+    },
+    "defaultSpecPrice": 128,
+    "room": {
+      "wastage": 5,
+      "groutEnabled": true,
+      "groutColor": "#94a3b8",
+      "groutDepth": 3,
+      "groutPrice": 20
+    },
+    "byMaterial": {
+      "tile": { "tileW": 800, "tileH": 800, "gap": 2, "pattern": "straight", "auxPrice": 35, "expansionGap": 5 },
+      "wood": { "tileW": 1210, "tileH": 195, "gap": 0, "pattern": "brick", "auxPrice": 15, "expansionGap": 8 }
+    }
+  },
+
+  "calc": {
+    "groutMetersPerTube": 30,
+    "groutDepthMM": 3,
+    "groutCrossRef": 6
+  },
+
+  "door": {
+    "jointOptions": {
+      "tile_tile": [
+        { "value": "continuous", "label": "通铺" },
+        { "value": "threshold", "label": "过门石" },
+        { "value": "align", "label": "对缝" }
+      ],
+      "tile_wood": [
+        { "value": "strip", "label": "压边条 / 高低压条" },
+        { "value": "threshold", "label": "过门石" },
+        { "value": "hard", "label": "硬连接 (无压条)" }
+      ],
+      "wood_wood": [
+        { "value": "strip", "label": "压边条 / 高低压条" },
+        { "value": "continuous", "label": "通铺" }
+      ],
+      "single_side": [
+        { "value": "threshold", "label": "过门石" },
+        { "value": "extend", "label": "室内铺贴延伸" }
+      ]
+    },
+    "stripTypes": {
+      "none": "无压边条",
+      "strip": "压边条/高低压条"
+    },
+    "defaultThresholdStyleId": "tile-black-stone",
+    "defaultStripOffsetMM": 20,
+    "thresholdPrice": 120,
+    "stripPrice": 35
+  },
+
+  "wall": {
+    "floorHeightMM": 2800,
+    "doorHeightMM": 2100,
+    "windowHeightMM": 1500,
+    "windowSillMM": 900,
+    "sizes": [
+      { "w": 300, "h": 600, "label": "300×600" },
+      { "w": 600, "h": 300, "label": "600×300" },
+      { "w": 400, "h": 800, "label": "400×800" },
+      { "w": 600, "h": 1200, "label": "600×1200" },
+      { "w": 750, "h": 1500, "label": "750×1500" },
+      { "w": 300, "h": 300, "label": "300×300" },
+      { "w": 600, "h": 600, "label": "600×600" },
+      { "w": 75, "h": 300, "label": "75×300 地铁砖" },
+      { "w": 100, "h": 100, "label": "100×100" },
+      { "w": 900, "h": 1800, "label": "900×1800 岩板" },
+      { "w": 1200, "h": 2400, "label": "1200×2400 护墙大板" },
+      { "w": 400, "h": 2800, "label": "400×2800 护墙板" },
+      { "w": 600, "h": 2800, "label": "600×2800 护墙板" },
+      { "w": 160, "h": 2800, "label": "160×2800 格栅墙板" },
+      { "w": 1200, "h": 600, "label": "1200×600 吊顶板" },
+      { "w": 1200, "h": 1200, "label": "1200×1200 蜂窝大板" }
+    ],
+    "patterns": [
+      { "value": "straight", "label": "正铺", "icon": "ti-pat-straight" },
+      { "value": "brick", "label": "工字铺", "icon": "ti-pat-brick" },
+      { "value": "vbrick", "label": "竖向工字", "icon": "ti-pat-brick", "cls": "is-vertical" }
+    ],
+    "alignH": { "left": "左整砖", "center": "居中", "right": "右整砖" },
+    "alignV": { "bottom": "底整砖", "center": "居中", "top": "顶整砖" },
+    "face": {
+      "tileW": 300,
+      "tileH": 600,
+      "pattern": "straight",
+      "gap": 1.5,
+      "alignH": "center",
+      "alignV": "bottom",
+      "wastage": 5,
+      "groutEnabled": true,
+      "groutColor": "#94a3b8",
+      "groutPrice": 20,
+      "auxPrice": 45
+    },
+    "skirting": {
+      "tile": { "lenMM": 800, "thickMM": 12, "heightMM": 100, "wastage": 5, "price": 128, "priceUnit": "sqm" },
+      "wood": { "lenMM": 2400, "thickMM": 15, "heightMM": 80, "wastage": 5, "price": 128, "priceUnit": "sqm" }
+    }
+  },
+
+  "quote": {
+    "extraItems": [
+      { "name": "铺贴人工费", "spec": "常规铺贴", "unit": "m²", "qtyFromArea": true, "price": 0, "note": "按铺贴总面积" },
+      { "name": "美缝施工人工费", "spec": "清缝+打胶铲胶", "unit": "m²", "qtyFromArea": true, "price": 0, "note": "按铺贴总面积" },
+      { "name": "木地板安装费", "spec": "含防潮垫铺设", "unit": "m²", "qty": 1, "price": 0, "note": "" },
+      { "name": "地面找平费", "spec": "水泥砂浆/自流平", "unit": "m²", "qtyFromArea": true, "price": 0, "note": "按铺贴总面积" },
+      { "name": "厨卫防水施工", "spec": "防水涂刷两遍", "unit": "m²", "qty": 1, "price": 0, "note": "" },
+      { "name": "瓷砖加工 / 倒角磨边", "spec": "45°海棠角/拉槽", "unit": "m", "qty": 1, "price": 0, "note": "" },
+      { "name": "墙地砖开孔 / 水钻打孔", "spec": "开关/水口开孔", "unit": "个", "qty": 1, "price": 0, "note": "" },
+      { "name": "瓷砖背胶", "spec": "强力界面背胶", "unit": "桶", "qty": 1, "price": 0, "note": "" },
+      { "name": "成品保护膜及铺设", "spec": "铺贴后成品保护", "unit": "m²", "qtyFromArea": true, "price": 0, "note": "" },
+      { "name": "材料搬运上楼费", "spec": "搬运及上楼", "unit": "项", "qty": 1, "price": 0, "note": "" },
+      { "name": "材料配送运输费", "spec": "货车配送", "unit": "趟", "qty": 1, "price": 0, "note": "" },
+      { "name": "建筑垃圾清运费", "spec": "废料装袋清运", "unit": "项", "qty": 1, "price": 0, "note": "" },
+      { "name": "管理费 / 税费", "spec": "", "unit": "项", "qty": 1, "price": 0, "note": "" },
+      { "name": "空白项", "unit": "项", "qty": 1, "price": 0, "note": "", "blank": true }
+    ]
+  }
+}

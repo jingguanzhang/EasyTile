@@ -1,0 +1,491 @@
+{
+ "format": "tilecalc-project",
+ "version": 5,
+ "projectName": "标准两居室（示例）",
+ "clientName": "",
+ "state": {
+  "floorsEnabled": false,
+  "currentFloorId": "F1",
+  "floors": [
+   {
+    "id": "F1",
+    "name": "1F",
+    "state": {
+     "vertices": [
+      {
+       "id": "v1",
+       "x": 110,
+       "y": 75
+      },
+      {
+       "id": "v2",
+       "x": 300,
+       "y": 75
+      },
+      {
+       "id": "v3",
+       "x": 418,
+       "y": 75
+      },
+      {
+       "id": "v4",
+       "x": 590,
+       "y": 75
+      },
+      {
+       "id": "v5",
+       "x": 300,
+       "y": 185
+      },
+      {
+       "id": "v6",
+       "x": 418,
+       "y": 185
+      },
+      {
+       "id": "v7",
+       "x": 458,
+       "y": 185
+      },
+      {
+       "id": "v8",
+       "x": 110,
+       "y": 243
+      },
+      {
+       "id": "v9",
+       "x": 300,
+       "y": 243
+      },
+      {
+       "id": "v10",
+       "x": 412,
+       "y": 315
+      },
+      {
+       "id": "v11",
+       "x": 458,
+       "y": 315
+      },
+      {
+       "id": "v12",
+       "x": 590,
+       "y": 315
+      },
+      {
+       "id": "v13",
+       "x": 110,
+       "y": 465
+      },
+      {
+       "id": "v14",
+       "x": 412,
+       "y": 465
+      },
+      {
+       "id": "v15",
+       "x": 590,
+       "y": 465
+      }
+     ],
+     "walls": [
+      {
+       "id": "w1",
+       "v1": "v1",
+       "v2": "v2",
+       "thickness": 14
+      },
+      {
+       "id": "w2",
+       "v1": "v2",
+       "v2": "v3",
+       "thickness": 14
+      },
+      {
+       "id": "w3",
+       "v1": "v3",
+       "v2": "v4",
+       "thickness": 14
+      },
+      {
+       "id": "w4",
+       "v1": "v4",
+       "v2": "v12",
+       "thickness": 14
+      },
+      {
+       "id": "w5",
+       "v1": "v12",
+       "v2": "v15",
+       "thickness": 14
+      },
+      {
+       "id": "w6",
+       "v1": "v15",
+       "v2": "v14",
+       "thickness": 14
+      },
+      {
+       "id": "w7",
+       "v1": "v14",
+       "v2": "v13",
+       "thickness": 14
+      },
+      {
+       "id": "w8",
+       "v1": "v13",
+       "v2": "v8",
+       "thickness": 14
+      },
+      {
+       "id": "w9",
+       "v1": "v8",
+       "v2": "v1",
+       "thickness": 14
+      },
+      {
+       "id": "w10",
+       "v1": "v2",
+       "v2": "v5",
+       "thickness": 10
+      },
+      {
+       "id": "w11",
+       "v1": "v5",
+       "v2": "v9",
+       "thickness": 10
+      },
+      {
+       "id": "w12",
+       "v1": "v8",
+       "v2": "v9",
+       "thickness": 10
+      },
+      {
+       "id": "w13",
+       "v1": "v3",
+       "v2": "v6",
+       "thickness": 10
+      },
+      {
+       "id": "w14",
+       "v1": "v5",
+       "v2": "v6",
+       "thickness": 10
+      },
+      {
+       "id": "w15",
+       "v1": "v6",
+       "v2": "v7",
+       "thickness": 10
+      },
+      {
+       "id": "w16",
+       "v1": "v7",
+       "v2": "v11",
+       "thickness": 10
+      },
+      {
+       "id": "w17",
+       "v1": "v10",
+       "v2": "v11",
+       "thickness": 10
+      },
+      {
+       "id": "w18",
+       "v1": "v11",
+       "v2": "v12",
+       "thickness": 10
+      },
+      {
+       "id": "w19",
+       "v1": "v10",
+       "v2": "v14",
+       "thickness": 10
+      }
+     ],
+     "openings": [
+      {
+       "id": "op1",
+       "wallId": "w11",
+       "t": 0.55,
+       "width": 42,
+       "type": "door",
+       "flip": true,
+       "hinge": 1
+      },
+      {
+       "id": "op2",
+       "wallId": "w14",
+       "t": 0.62,
+       "width": 38,
+       "type": "door",
+       "flip": true,
+       "hinge": 0
+      },
+      {
+       "id": "op3",
+       "wallId": "w17",
+       "t": 0.5,
+       "width": 40,
+       "type": "door",
+       "flip": false,
+       "hinge": 0
+      },
+      {
+       "id": "op4",
+       "wallId": "w7",
+       "t": 0.25,
+       "width": 46,
+       "type": "door",
+       "flip": false,
+       "hinge": 1
+      },
+      {
+       "id": "op5",
+       "wallId": "w1",
+       "t": 0.5,
+       "width": 68,
+       "type": "window",
+       "flip": false,
+       "hinge": 0
+      },
+      {
+       "id": "op6",
+       "wallId": "w2",
+       "t": 0.5,
+       "width": 56,
+       "type": "window",
+       "flip": false,
+       "hinge": 0
+      },
+      {
+       "id": "op7",
+       "wallId": "w3",
+       "t": 0.5,
+       "width": 68,
+       "type": "window",
+       "flip": false,
+       "hinge": 0
+      },
+      {
+       "id": "op8",
+       "wallId": "w7",
+       "t": 0.72,
+       "width": 72,
+       "type": "window",
+       "flip": false,
+       "hinge": 0
+      },
+      {
+       "id": "op9",
+       "wallId": "w6",
+       "t": 0.5,
+       "width": 68,
+       "type": "window",
+       "flip": false,
+       "hinge": 0
+      }
+     ],
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "卫生间",
+       "autoGenerated": false,
+       "vertexIds": [
+        "v2",
+        "v3",
+        "v6",
+        "v5"
+       ],
+       "materialType": "tile",
+       "styleId": null,
+       "tileW": 300,
+       "tileH": 300,
+       "gap": 2,
+       "groutEnabled": true,
+       "groutColor": "#94a3b8",
+       "groutDepth": 3,
+       "groutPrice": 45,
+       "auxPrice": 35,
+       "wallGroutEnabled": true,
+       "wallGroutColor": "#94a3b8",
+       "wallGroutPrice": 45,
+       "wallAuxPrice": 45,
+       "expansionGap": 5,
+       "originMode": "bl",
+       "originX": null,
+       "originY": null,
+       "originDoorAlign": null,
+       "originDoorId": null,
+       "originDoorOffset": 0,
+       "pattern": "straight",
+       "wastage": 5,
+       "cleared": false,
+       "wallTiling": null
+      },
+      {
+       "id": "r2",
+       "name": "主卧",
+       "autoGenerated": false,
+       "vertexIds": [
+        "v1",
+        "v2",
+        "v5",
+        "v9",
+        "v8"
+       ],
+       "materialType": "wood",
+       "styleId": null,
+       "tileW": 1210,
+       "tileH": 195,
+       "gap": 0,
+       "groutEnabled": true,
+       "groutColor": "#94a3b8",
+       "groutDepth": 3,
+       "groutPrice": 45,
+       "auxPrice": 15,
+       "wallGroutEnabled": true,
+       "wallGroutColor": "#94a3b8",
+       "wallGroutPrice": 45,
+       "wallAuxPrice": 45,
+       "expansionGap": 8,
+       "originMode": "bl",
+       "originX": null,
+       "originY": null,
+       "originDoorAlign": null,
+       "originDoorId": null,
+       "originDoorOffset": 0,
+       "pattern": "brick",
+       "wastage": 5,
+       "cleared": false,
+       "wallTiling": null
+      },
+      {
+       "id": "r3",
+       "name": "厨房",
+       "autoGenerated": false,
+       "vertexIds": [
+        "v3",
+        "v4",
+        "v12",
+        "v11",
+        "v7",
+        "v6"
+       ],
+       "materialType": "tile",
+       "styleId": null,
+       "tileW": 600,
+       "tileH": 600,
+       "gap": 2,
+       "groutEnabled": true,
+       "groutColor": "#94a3b8",
+       "groutDepth": 3,
+       "groutPrice": 45,
+       "auxPrice": 35,
+       "wallGroutEnabled": true,
+       "wallGroutColor": "#94a3b8",
+       "wallGroutPrice": 45,
+       "wallAuxPrice": 45,
+       "expansionGap": 5,
+       "originMode": "bl",
+       "originX": null,
+       "originY": null,
+       "originDoorAlign": null,
+       "originDoorId": null,
+       "originDoorOffset": 0,
+       "pattern": "straight",
+       "wastage": 5,
+       "cleared": false,
+       "wallTiling": null
+      },
+      {
+       "id": "r4",
+       "name": "客餐厅",
+       "autoGenerated": false,
+       "vertexIds": [
+        "v5",
+        "v6",
+        "v7",
+        "v11",
+        "v10",
+        "v14",
+        "v13",
+        "v8",
+        "v9"
+       ],
+       "materialType": "tile",
+       "styleId": null,
+       "tileW": 800,
+       "tileH": 800,
+       "gap": 2,
+       "groutEnabled": true,
+       "groutColor": "#94a3b8",
+       "groutDepth": 3,
+       "groutPrice": 45,
+       "auxPrice": 35,
+       "wallGroutEnabled": true,
+       "wallGroutColor": "#94a3b8",
+       "wallGroutPrice": 45,
+       "wallAuxPrice": 45,
+       "expansionGap": 5,
+       "originMode": "bl",
+       "originX": null,
+       "originY": null,
+       "originDoorAlign": null,
+       "originDoorId": null,
+       "originDoorOffset": 0,
+       "pattern": "straight",
+       "wastage": 5,
+       "cleared": false,
+       "wallTiling": null
+      },
+      {
+       "id": "r5",
+       "name": "次卧",
+       "autoGenerated": false,
+       "vertexIds": [
+        "v10",
+        "v11",
+        "v12",
+        "v15",
+        "v14"
+       ],
+       "materialType": "wood",
+       "styleId": null,
+       "tileW": 1210,
+       "tileH": 195,
+       "gap": 0,
+       "groutEnabled": true,
+       "groutColor": "#94a3b8",
+       "groutDepth": 3,
+       "groutPrice": 45,
+       "auxPrice": 15,
+       "wallGroutEnabled": true,
+       "wallGroutColor": "#94a3b8",
+       "wallGroutPrice": 45,
+       "wallAuxPrice": 45,
+       "expansionGap": 8,
+       "originMode": "bl",
+       "originX": null,
+       "originY": null,
+       "originDoorAlign": null,
+       "originDoorId": null,
+       "originDoorOffset": 0,
+       "pattern": "brick",
+       "wastage": 5,
+       "cleared": false,
+       "wallTiling": null
+      }
+     ],
+     "northAngle": 0,
+     "floorHeightMM": 2800,
+     "specMeta": {},
+     "specPrices": {},
+     "tileNumSep": "-"
+    }
+   }
+  ]
+ },
+ "customStyles": []
+}

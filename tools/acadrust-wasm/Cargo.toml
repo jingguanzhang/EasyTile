@@ -1,0 +1,29 @@
+[package]
+name = "acadrust-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "TileCalc CAD export core: JSON drawing spec -> DXF/DWG via acadrust (WebAssembly)"
+license = "MPL-2.0"
+repository = "https://github.com/hakanaktt/acadrust"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+acadrust = { version = "=0.6.8", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 固定版本：须与 build-wasm.sh 使用的 wasm-bindgen CLI 版本一致。
+wasm-bindgen = "=0.2.129"
+
+# acadrust 依赖的 ahash 在 wasm32 上通过 crypto.getRandomValues 取随机种子。
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+# 减小产物体积；panic 会直接终止 wasm 实例（绘图描述的错误均以 Result 返回）。
+panic = "abort"
